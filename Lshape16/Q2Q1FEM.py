@@ -142,7 +142,7 @@ def BoundaryCndQ2(nelm_1,Node):
     return NodeBC
 
 
-def RecSquareMeshQ1(nelm):
+def RecSquareMeshQ1(nelm,left,right,wid,spa):
     dx = 1/nelm
     dy = dx
     nnode = (nelm+1)*(nelm+1)
@@ -163,9 +163,9 @@ def RecSquareMeshQ1(nelm):
             conec[ind,:] = i,int(i+nelm+1), int(i+nelm+2), int(i+1)
             ind = ind+1
     Element = conec.astype(int)
-    NodeBC = RecBoundaryCndQ1(nelm,Node)
+    NodeBC = RecBoundaryCndQ1(nelm,Node,left,right,wid,spa)
     return Node, Element, NodeBC
-def RecBoundaryCndQ1(nelm,Node):
+def RecBoundaryCndQ1(nelm,Node,left,right,wid,spa):
     BC=[]
     for i in range(nelm-1):
         BC.append([(nelm+1)*(i+1),0,0])
@@ -174,19 +174,19 @@ def RecBoundaryCndQ1(nelm,Node):
         BC.append([(nelm+1)*(i+1)+nelm,1,0])
     for i in range(nelm+1):
         y_in = Node[i,1]
-        if y_in>=0.7 and y_in<=0.9:
-            v_in = 0.25-25*((y_in-0.8)**2)
-        elif y_in>=0.4 and y_in<=0.6:
-            v_in = 0.25-25*((y_in-0.5)**2)
+        if y_in>=left-wid and y_in<=left:
+            v_in = 1-((2/wid)**2)*((y_in-(left-wid/2))**2)
+        elif y_in>=left-spa-wid*2 and y_in<=left-spa-wid:
+            v_in = 1-((2/wid)**2)*((y_in-(left-spa-3*wid/2))**2)
         else:
             v_in=0
         BC.append([i,0,v_in])
         BC.append([i,1,0])
         y_out = Node[(nelm+1)*nelm+i,1]
-        if y_out>=0.4 and y_out<=0.6:
-            v_out = 0.25-25*((y_out-0.5)**2)
-        elif y_out>=0.1 and y_out<=0.3:
-            v_out = 0.25-25*((y_out-0.2)**2)
+        if y_out>=right-wid and y_out<=right:
+            v_out = 1-((2/wid)**2)*((y_out-(right-wid/2))**2)
+        elif y_out>=right-spa-wid*2 and y_out<=right-spa-wid:
+            v_out = 1-((2/wid)**2)*((y_out-(right-spa-3*wid/2))**2)
         else:
             v_out=0
         BC.append([(nelm+1)*nelm+i,0,v_out])
@@ -195,7 +195,7 @@ def RecBoundaryCndQ1(nelm,Node):
     NodeBC = np.array(BC)
     return NodeBC
 
-def RecSquareMeshQ2(nelm_1):
+def RecSquareMeshQ2(nelm_1,left,right,wid,spa):
     nelm=nelm_1*2
     dx = 1/nelm
     dy = dx
@@ -220,9 +220,9 @@ def RecSquareMeshQ2(nelm_1):
                     conec[ind,:] = i,int(i+2*nelm+2),int(i+2*nelm+4),int(i+2),int(i+nelm+1),int(i+2*nelm+3),int(i+nelm+3),int(i+1),int(i+nelm+2)
                     ind = ind+1
     Element = conec.astype(int)
-    NodeBC = RecBoundaryCndQ1(nelm,Node)
+    NodeBC = RecBoundaryCndQ1(nelm,Node,left,right,wid,spa)
     return Node, Element, NodeBC
-def RecBoundaryCndQ2(nelm_1,Node):
+def RecBoundaryCndQ2(nelm_1,Node,left,right,wid,spa):
     nelm=nelm_1*2
     BC=[]
     for i in range(nelm-1):
@@ -232,19 +232,19 @@ def RecBoundaryCndQ2(nelm_1,Node):
         BC.append([(nelm+1)*(i+1)+nelm,1,0])
     for i in range(nelm+1):
         y_in = Node[i,1]
-        if y_in>=0.8 and y_in<=0.9:
-            v_in = 1-400*((y_in-0.85)**2)
-        elif y_in>=0.6 and y_in<=0.7:
-            v_in = 1-400*((y_in-0.65)**2)
+        if y_in>=left-wid and y_in<=left:
+            v_in = 1-((2/wid)**2)*((y_in-(left-wid/2))**2)
+        elif y_in>=left-spa-wid*2 and y_in<=left-spa-wid:
+            v_in = 1-((2/wid)**2)*((y_in-(left-spa-3*wid/2))**2)
         else:
             v_in=0
         BC.append([i,0,v_in])
         BC.append([i,1,0])
         y_out = Node[(nelm+1)*nelm+i,1]
-        if y_out>=0.6 and y_out<=0.7:
-            v_out = 0.25-100*((y_out-0.65)**2)
-        elif y_out>=0.4 and y_out<=0.5:
-            v_out = 0.25-100*((y_out-0.45)**2)
+        if y_out>=right-wid and y_out<=right:
+            v_out = 1-((2/wid)**2)*((y_out-(right-wid/2))**2)
+        elif y_out>=right-spa-wid*2 and y_out<=right-spa-wid:
+            v_out = 1-((2/wid)**2)*((y_out-(right-spa-3*wid/2))**2)
         else:
             v_out=0
         BC.append([(nelm+1)*nelm+i,0,v_out])
@@ -559,8 +559,7 @@ def ConstraintFncQ2(fem_NElem,fem_Node,fem_Element,E,V,Volfrac):
 def MatIntFnc(y,param):
     mu0 = param[0]
     q = param[1]
-    epsilon = 4*(10**-5)
-    #epsilon = 4*(10**-3)
+    epsilon = 4*(10**-3)
     E = (mu0/epsilon)*q*(1-y)/(y+q)
     dEdy = -(mu0/epsilon)*(1+q)*q/((y+q)**2)
     V = y
@@ -588,7 +587,7 @@ def Plot_initQ2_check(Node,Element,NodeBC):
         plt.scatter(Node[int(NodeBC[i,0]),0],Node[int(NodeBC[i,0]),1],color = 'dodgerblue')
     plt.show()
     
-def Plot_init(Node,Element,NodeBC):
+def Plot_initQ2(Node,Element,NodeBC):
     Node_T=Node.T
     for temp_t in Element:
         plt.plot([Node_T[0,temp_t[0]],Node_T[0,temp_t[1]]],[Node_T[1,temp_t[0]],Node_T[1,temp_t[1]]],color='magenta')
@@ -600,7 +599,19 @@ def Plot_init(Node,Element,NodeBC):
     for i in range(len(NodeBC)):
         plt.scatter(Node[int(NodeBC[i,0]),0],Node[int(NodeBC[i,0]),1],color = 'dodgerblue')
     plt.show()
-
+    
+def Plot_initQ1(Node,Element,NodeBC):
+    Node_T=Node.T
+    for temp_t in Element:
+        plt.plot([Node_T[0,temp_t[0]],Node_T[0,temp_t[1]]],[Node_T[1,temp_t[0]],Node_T[1,temp_t[1]]],color='magenta')
+        plt.plot([Node_T[0,temp_t[1]],Node_T[0,temp_t[2]]],[Node_T[1,temp_t[1]],Node_T[1,temp_t[2]]],color='magenta')
+        plt.plot([Node_T[0,temp_t[2]],Node_T[0,temp_t[3]]],[Node_T[1,temp_t[2]],Node_T[1,temp_t[3]]],color='magenta')
+        plt.plot([Node_T[0,temp_t[3]],Node_T[0,temp_t[0]]],[Node_T[1,temp_t[3]],Node_T[1,temp_t[0]]],color='magenta')
+    for i in range(len(Node)):
+        plt.scatter(Node[i,0],Node[i,1],color = 'magenta')
+    for i in range(len(NodeBC)):
+        plt.scatter(Node[int(NodeBC[i,0]),0],Node[int(NodeBC[i,0]),1],color = 'dodgerblue')
+    plt.show()
     
 def Plot_quiver(Node,Element,u_plot_elem,v_plot_elem):
     fem_NElem = Element.shape[0]
