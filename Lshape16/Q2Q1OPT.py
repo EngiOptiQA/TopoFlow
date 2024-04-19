@@ -141,6 +141,7 @@ def BoundaryCndQ2(nelm_1,Node):
     NodeBC = np.array(BC)
     return NodeBC
 
+
 def RecSquareMeshQ1(nelm,wid):
     dx = 1/nelm
     dy = dx
@@ -239,96 +240,85 @@ def RecBoundaryCndQ2(nelm_1,Node,wid):
     NodeBC = np.array(BC)
     return NodeBC
 
-
-def nanameRecSquareMeshQ1(nelm,left,right,wid,spa):
-    dx = 1/nelm
-    dy = dx
-    nnode = (nelm+1)*(nelm+1)
+def TwoSquareMeshQ1(nelx,nely,left,right,wid,spa):
+    dy = 1/nely
+    dx = dy
+    nnode = (nelx+1)*(nely+1)
     Node = np.zeros((nnode,2))
     x = 0
-    for i in range(nelm+1):
+    for i in range(nelx+1):
         y = 0
-        for j in range(nelm+1):
-            ind = i*(nelm+1)+j
+        for j in range(nely+1):
+            ind = i*(nely+1)+j
             Node[ind,:] = np.array([x,y])
             y = y+dy
         x = x+dx
-    elmN = nelm*nelm
+    elmN = nelx*nely
     conec = np.zeros((elmN,4))
     ind = 0
-    for i in range((nelm+1)*nelm):
-        if i%(nelm+1)!=nelm:
-            conec[ind,:] = i,int(i+nelm+1), int(i+nelm+2), int(i+1)
+    for i in range((nely+1)*nelx):
+        if i%(nely+1)!=nely:
+            conec[ind,:] = i,int(i+nely+1), int(i+nely+2), int(i+1)
             ind = ind+1
     Element = conec.astype(int)
-    NodeBC = nanameRecBoundaryCndQ1(nelm,Node,left,right,wid,spa)
-    return Node, Element, NodeBC
-def nanameRecBoundaryCndQ1(nelm,Node,left,right,wid,spa):
+    NodeBC = TwoBoundaryCndQ1(nelx,nely,Node,left,right,wid,spa)
+    return Node,Element,NodeBC
+
+def TwoBoundaryCndQ1(nelx,nely,Node,left,right,wid,spa):
     BC=[]
-    for i in range(nelm-1):
-        BC.append([(nelm+1)*(i+1),0,0])
-        BC.append([(nelm+1)*(i+1),1,0])
-        BC.append([(nelm+1)*(i+1)+nelm,0,0])
-        BC.append([(nelm+1)*(i+1)+nelm,1,0])
-    for i in range(nelm+1):
-        y_in = Node[i,1]
-        if y_in>=left-wid and y_in<=left:
-            v_in = 1-((2/wid)**2)*((y_in-(left-wid/2))**2)
-        elif y_in>=left-spa-wid*2 and y_in<=left-spa-wid:
-            v_in = 1-((2/wid)**2)*((y_in-(left-spa-3*wid/2))**2)
-        else:
-            v_in=0
-        BC.append([i,0,v_in])
-        BC.append([i,1,0])
-        y_out = Node[(nelm+1)*nelm+i,1]
+    for i in range(nely+1):
+        y_out = Node[(nely+1)*nelx+i,1]
         if y_out>=right-wid and y_out<=right:
-            v_out = 1-((2/wid)**2)*((y_out-(right-wid/2))**2)
+            p_out = 0
+            BC.append([(nely+1)*nelx+i,0,p_out])
         elif y_out>=right-spa-wid*2 and y_out<=right-spa-wid:
-            v_out = 1-((2/wid)**2)*((y_out-(right-spa-3*wid/2))**2)
+            p_out = 0
+            BC.append([(nely+1)*nelx+i,0,p_out])
         else:
-            v_out=0
-        BC.append([(nelm+1)*nelm+i,0,v_out])
-        BC.append([(nelm+1)*nelm+i,1,0])
+            continue
     BC.sort()
     NodeBC = np.array(BC)
     return NodeBC
 
-def nanameRecSquareMeshQ2(nelm_1,left,right,wid,spa):
-    nelm=nelm_1*2
-    dx = 1/nelm
-    dy = dx
-    nnode = (nelm+1)*(nelm+1)
+def TwoSquareMeshQ2(nelx_1,nely_1,left,right,wid,spa):
+    nelx = nelx_1*2
+    nely = nely_1*2
+    dy = 1/nely
+    dx = dy
+    nnode = (nelx+1)*(nely+1)
     Node = np.zeros((nnode,2))
     x = 0
-    for i in range(nelm+1):
+    for i in range(nelx+1):
         y = 0
-        for j in range(nelm+1):
-            ind = i*(nelm+1)+j
+        for j in range(nely+1):
+            ind = i*(nely+1)+j
             Node[ind,:] = np.array([x,y])
             y = y+dy
         x = x+dx
-    elmN = nelm_1*nelm_1
+    elmN = nelx_1*nely_1
     conec = np.zeros((elmN,9))
     ind = 0
-    for j in range(nelm):
+    for j in range(nelx):
         if j%2==0:
-            for k in range(nelm+1):
-                if k%2==0 and k%(nelm+1)!=nelm:
-                    i = j*(nelm+1)+k
-                    conec[ind,:] = i,int(i+2*nelm+2),int(i+2*nelm+4),int(i+2),int(i+nelm+1),int(i+2*nelm+3),int(i+nelm+3),int(i+1),int(i+nelm+2)
+            for k in range(nely+1):
+                if k%2==0 and k%(nely+1)!=nely:
+                    i = j*(nely+1)+k
+                    conec[ind,:] = i,int(i+2*nely+2),int(i+2*nely+4),int(i+2),int(i+nely+1),int(i+2*nely+3),int(i+nely+3),int(i+1),int(i+nely+2)
                     ind = ind+1
     Element = conec.astype(int)
-    NodeBC = nanameRecBoundaryCndQ1(nelm,Node,left,right,wid,spa)
-    return Node, Element, NodeBC
-def nanameRecBoundaryCndQ2(nelm_1,Node,left,right,wid,spa):
-    nelm=nelm_1*2
+    NodeBC = TwoBoundaryCndQ2(nelx_1,nely_1,Node,left,right,wid,spa)
+    return Node,Element,NodeBC
+
+def TwoBoundaryCndQ2(nelx_1,nely_1,Node,left,right,wid,spa):
+    nelx = nelx_1*2
+    nely = nely_1*2
     BC=[]
-    for i in range(nelm-1):
-        BC.append([(nelm+1)*(i+1),0,0])
-        BC.append([(nelm+1)*(i+1),1,0])
-        BC.append([(nelm+1)*(i+1)+nelm,0,0])
-        BC.append([(nelm+1)*(i+1)+nelm,1,0])
-    for i in range(nelm+1):
+    for i in range(nelx-1):
+        BC.append([(nely+1)*(i+1),0,0])
+        BC.append([(nely+1)*(i+1),1,0])
+        BC.append([(nely+1)*(i+1)+nely,0,0])
+        BC.append([(nely+1)*(i+1)+nely,1,0])
+    for i in range(nely+1):
         y_in = Node[i,1]
         if y_in>=left-wid and y_in<=left:
             v_in = 1-((2/wid)**2)*((y_in-(left-wid/2))**2)
@@ -338,24 +328,79 @@ def nanameRecBoundaryCndQ2(nelm_1,Node,left,right,wid,spa):
             v_in=0
         BC.append([i,0,v_in])
         BC.append([i,1,0])
-        y_out = Node[(nelm+1)*nelm+i,1]
+        y_out = Node[(nely+1)*nelx+i,1]
         if y_out>=right-wid and y_out<=right:
             v_out = 1-((2/wid)**2)*((y_out-(right-wid/2))**2)
         elif y_out>=right-spa-wid*2 and y_out<=right-spa-wid:
             v_out = 1-((2/wid)**2)*((y_out-(right-spa-3*wid/2))**2)
         else:
             v_out=0
-        BC.append([(nelm+1)*nelm+i,0,v_out])
-        BC.append([(nelm+1)*nelm+i,1,0])
+        BC.append([(nely+1)*nelx+i,0,v_out])
+        BC.append([(nely+1)*nelx+i,1,0])
+    BC.sort()
+    NodeBC = np.array(BC)
+    return NodeBC
+
+def PolyTwoSquareMeshQ1(nelx,nely,left,right,wid,spa):
+    dy = 1/nely
+    dx = dy
+    nnode = (nelx+1)*(nely+1)
+    Node = np.zeros((nnode,2))
+    x = 0
+    for i in range(nelx+1):
+        y = 0
+        for j in range(nely+1):
+            ind = i*(nely+1)+j
+            Node[ind,:] = np.array([x,y])
+            y = y+dy
+        x = x+dx
+    elmN = nelx*nely
+    conec = np.zeros((elmN,4))
+    ind = 0
+    for i in range((nely+1)*nelx):
+        if i%(nely+1)!=nely:
+            conec[ind,:] = i,int(i+nely+1), int(i+nely+2), int(i+1)
+            ind = ind+1
+    Element = conec.astype(int)
+    NodeBC = PolyTwoBoundaryCndQ1(nelx,nely,Node,left,right,wid,spa)
+    return Node,Element,NodeBC
+
+def PolyTwoBoundaryCndQ1(nelx,nely,Node,left,right,wid,spa):
+    BC=[]
+    BC=[]
+    for i in range(nelx-1):
+        BC.append([(nely+1)*(i+1),0,0])
+        BC.append([(nely+1)*(i+1),1,0])
+        BC.append([(nely+1)*(i+1)+nely,0,0])
+        BC.append([(nely+1)*(i+1)+nely,1,0])
+    for i in range(nely+1):
+        y_in = Node[i,1]
+        if y_in>=left-wid and y_in<=left:
+            v_in = 1-((2/wid)**2)*((y_in-(left-wid/2))**2)
+        elif y_in>=left-spa-wid*2 and y_in<=left-spa-wid:
+            v_in = 1-((2/wid)**2)*((y_in-(left-spa-3*wid/2))**2)
+        else:
+            v_in=0
+        BC.append([i,0,v_in])
+        BC.append([i,1,0])
+        y_out = Node[(nely+1)*nelx+i,1]
+        if y_out>=right-wid and y_out<=right:
+            v_out = 1-((2/wid)**2)*((y_out-(right-wid/2))**2)
+        elif y_out>=right-spa-wid*2 and y_out<=right-spa-wid:
+            v_out = 1-((2/wid)**2)*((y_out-(right-spa-3*wid/2))**2)
+        else:
+            v_out=0
+        BC.append([(nely+1)*nelx+i,0,v_out])
+        BC.append([(nely+1)*nelx+i,1,0])
     BC.sort()
     NodeBC = np.array(BC)
     return NodeBC
 
 
 """
-Main Function
+Function for optimization
 """
-def Q2Q1FEM(Node,Element,NodeBC,Node_P,Element_P,NodeBC_P,zIni):
+def Q2Q1FEM(Node,Element,NodeBC,Node_P,Element_P,NodeBC_P,zIni,fem_ElemArea,E):
     fem_NNode = Node.shape[0]    # Number of nodes
     fem_NElem = Element.shape[0] # Number of elements
     fem_Node = Node           # [NNode x 2] array of nodes
@@ -376,31 +421,7 @@ def Q2Q1FEM(Node,Element,NodeBC,Node_P,Element_P,NodeBC_P,zIni):
     P_ori_P = np.identity(fem_NElem_P)
     P = csr_matrix(P_ori)
     P_P = csr_matrix(P_ori_P)
-    
-    opt_zMin=0.0    # Lower bound for design variables
-    opt_zMax=1.0    # Upper bound for design variables
-    opt_zIni = zIni # Initial design variables
-    opt_zIni_P = zIni
-    opt_P = P       # Matrix that maps design to element vars.
-    opt_P_P = P_P
-    opt_VolFrac = Volfrac  # Specified volume fraction cosntraint
-    opt_Tol = 0.01   # Convergence tolerance on design vars.
-    opt_MaxIter = 150  # Max. number of optimization iterations
-    opt_OCMove = 0.2  # Allowable move step in OC update scheme
-    opt_OCEta = 0.5  # Exponent used in OC update scheme
-    
-    Tol=opt_Tol*(opt_zMax-opt_zMin)
-    Change=2*Tol
-    z=opt_zIni
-    z_P = opt_zIni_P
-    P=opt_P
-    P_P = opt_P_P
-    
-    E,dEdy,V,dVdy = MatIntFnc(P*z,np.array([fem_mu0,0.001]))
-    E_P,dEdy_P,V_P,dVdy_P = MatIntFnc(P_P*z_P,np.array([fem_mu0,0.01]))
-    g,dgdE,dgdV,fem_ElemArea = ConstraintFncQ2(fem_NElem,fem_Node,fem_Element,E,V,Volfrac)
-    g_P,dgdE_P,dgdV_P,fem_ElemArea_P = ConstraintFncQ1(fem_NElem_P,fem_Node_P,fem_Element_P,E_P,V_P,Volfrac)
-    
+
     fem_ElemNDofA = (2*fem_Element.shape[1])*np.ones(fem_Element.shape[0])
     fem_ElemNDofA_P = (fem_Element_P.shape[1])*np.ones(fem_Element_P.shape[0])
     fem_iA = np.zeros(int(sum(fem_ElemNDofA**2)))
@@ -473,28 +494,10 @@ def Q2Q1FEM(Node,Element,NodeBC,Node_P,Element_P,NodeBC_P,zIni):
     U = S[:2*fem_NNode]
     p = S[2*fem_NNode:]
     F = A*U
-    f = 1/2*np.dot(F.flatten(),U.flatten())
     
-    u_plot = np.zeros(int(U.shape[0]/2))
-    v_plot = np.zeros(int(U.shape[0]/2))
-    for i in range(u_plot.shape[0]):
-        u_plot[i] = U[2*i]
-        v_plot[i] = U[2*i+1]
-    u_plot_elem = np.zeros(fem_NElem)
-    v_plot_elem = np.zeros(fem_NElem)
-    for i in range(fem_NElem):
-        u_plot_elem[i] = np.mean(u_plot[Element[i,:]])
-        v_plot_elem[i] = np.mean(v_plot[Element[i,:]])
-    p_plot_elem = np.zeros(fem_NElem)
-    for i in range(fem_NElem):
-        p_plot_elem[i]=np.mean(p[Element_P[i,:]])
-    
-    return p_plot_elem,f,u_plot_elem,v_plot_elem
+    return U,F,fem_iA,fem_jA,fem_kAalpha,fem_ElemNDofA
 
 
-"""
-Function for FEM
-"""
 def quad_order_1_gauss():
     s = np.sqrt(1/3)
     x = np.array([[-s, -s], [s, -s], [s, s], [-s, s]]) # Coordinates of quadrature points
@@ -649,7 +652,7 @@ def ConstraintFncQ2(fem_NElem,fem_Node,fem_Element,E,V,Volfrac):
         vx_s = vx[[1,2,3,0]]                        #🫠
         vy_s = vy[[1,2,3,0]]
         fem_ElemArea[el] = 0.5*sum(vx*vy_s-vy*vx_s)
-    g = sum(fem_ElemArea*V)/sum(fem_ElemArea)-Volfrac
+    g = sum(np.multiply(fem_ElemArea,V))/sum(fem_ElemArea)-Volfrac
     dgdE = np.zeros(E.shape)
     dgdV = fem_ElemArea/sum(fem_ElemArea)
     return g,dgdE,dgdV,fem_ElemArea
@@ -657,12 +660,40 @@ def ConstraintFncQ2(fem_NElem,fem_Node,fem_Element,E,V,Volfrac):
 def MatIntFnc(y,param):
     mu0 = param[0]
     q = param[1]
-    epsilon = 4*(10**-3)
+    epsilon = 4*(10**-2)
     E = (mu0/epsilon)*q*(1-y)/(y+q)
     dEdy = -(mu0/epsilon)*(1+q)*q/((y+q)**2)
     V = y
     dVdy = np.ones(y.shape[0])
     return E,dEdy,V,dVdy
+
+def ObjectiveFnc(Node,Element,NodeBC,Node_P,Element_P,NodeBC_P,zIni,fem_ElemArea,E,V):
+    U,F,fem_iA,fem_jA,fem_kAalpha,fem_ElemNDofA = Q2Q1FEM(Node,Element,NodeBC,Node_P,Element_P,NodeBC_P,zIni,fem_ElemArea,E)
+    f = 1/2*np.dot(F.flatten(),U.flatten())
+    temp = np.cumsum((np.multiply(np.multiply(U[fem_iA.astype(int)].flatten(),fem_kAalpha),U[fem_jA.astype(int)].flatten())))
+    temp = temp[(np.cumsum(fem_ElemNDofA**2)).astype(int)-1]
+    dfdE = np.zeros(len(Element))
+    dfdE[0] = 1/2*(temp[0])
+    dfdE[1:] = 1/2*(temp[1:]-temp[:-1])
+    dfdV = np.zeros(V.shape)
+    return f,dfdE,dfdV
+
+def UpdateScheme(dfdz,g,dgdz,z0,zMin,zMax,opt_OCMove,eta):
+    move=opt_OCMove*(zMax-zMin)
+    l1=0
+    l2=1e6
+    while l2-l1 > 1e-4:
+        lmid = 0.5*(l1+l2)
+        B = -(dfdz/dgdz)/lmid
+        zCnd = (np.multiply(zMin+(z0-zMin),B))**eta
+        zNew = np.fmax(np.fmax(np.fmin(np.fmin(zCnd,z0+move),zMax),z0-move),zMin)
+        if ((g+dgdz.reshape((1,dgdz.shape[0]))@(zNew-z0))>0):
+            l1 = lmid
+        else:
+            l2 = lmid
+    Change = max(abs(zNew-z0))/(zMax-zMin)
+    return zNew,Change
+    
 
 
 """
