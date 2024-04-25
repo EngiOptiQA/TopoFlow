@@ -396,7 +396,7 @@ def Q2Q1FEM(Node,Element,NodeBC,Node_P,Element_P,NodeBC_P,zIni):
     P=opt_P
     P_P = opt_P_P
     
-    E,dEdy,V,dVdy = MatIntFnc(P*z,np.array([fem_mu0,0.001]))
+    E,dEdy,V,dVdy = MatIntFnc(P*z,np.array([fem_mu0,1]))
     E_P,dEdy_P,V_P,dVdy_P = MatIntFnc(P_P*z_P,np.array([fem_mu0,0.01]))
     g,dgdE,dgdV,fem_ElemArea = ConstraintFncQ2(fem_NElem,fem_Node,fem_Element,E,V,Volfrac)
     g_P,dgdE_P,dgdV_P,fem_ElemArea_P = ConstraintFncQ1(fem_NElem_P,fem_Node_P,fem_Element_P,E_P,V_P,Volfrac)
@@ -657,7 +657,7 @@ def ConstraintFncQ2(fem_NElem,fem_Node,fem_Element,E,V,Volfrac):
 def MatIntFnc(y,param):
     mu0 = param[0]
     q = param[1]
-    epsilon = 4*(10**-3)
+    epsilon = 8*(10**-2)
     E = (mu0/epsilon)*q*(1-y)/(y+q)
     dEdy = -(mu0/epsilon)*(1+q)*q/((y+q)**2)
     V = y
