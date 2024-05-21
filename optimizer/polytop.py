@@ -89,7 +89,7 @@ class PolyTop(Optimizer):
     def mat_int_fnc(self, y, param):
         mu0 = param[0]
         q = param[1]
-        epsilon = 4*(10**-2)
+        epsilon = 8*(10**-2)
         E = (mu0/epsilon)*q*(1-y)/(y+q)
         dEdy = -(mu0/epsilon)*(1+q)*q/((y+q)**2)
         V = y

@@ -15,10 +15,10 @@ class TopologyOptimizationProblem:
         volume_max = volume_fraction_max * self.n_elem
 
         # Coefficient for porous resistance.
-        coef_pr = 10**5/4.
+        coef_pr = 10**2/4.
 
         # Coefficients for...
-        alpha_el = 5. # energy loss
+        alpha_el = 4*100*5. # energy loss
         #alpha_eqn_c = 1. # equation constraint
         alpha_ge = 10. # gradient energy
         alpha_hev = 300.0 # heaviside function
