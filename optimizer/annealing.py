@@ -50,15 +50,15 @@ class Annealing(Optimizer):
             solution = annealing_solver.solve_qubo_problem(problem)
 
             sol = []
-            heviside = []
+            heaviside = []
             for t in solution:
                 pred_t_d = np.sum(t[:-1])/n_qubits_per_variable
                 sol.append(pred_t_d)
                 pred_t_h = t[-1]
-                heviside.append(pred_t_h)
+                heaviside.append(pred_t_h)
 
             density = np.array(sol) 
-            check = np.array(heviside)
+            check = np.array(heaviside)
             self.fem.update_element_density(density)
             ###
             epsilon = 8*(10**-2)
