@@ -130,8 +130,8 @@ class FEM:
         
         # Set inverse permeability.
         if E is None:
-            epsilon = 4*(10**-2)
-            E = 1./epsilon*(1-self.density)
+            epsilon = 8*(10**-2)
+            E = 1./epsilon*(1-self.density)*0.01/(0.01+self.density)
 
         # Setup system of equations.
         A = csr_matrix((k_A_mu + E[e]*k_A_alpha,(i_A,j_A)))
@@ -261,5 +261,9 @@ class FEM:
 
     def plot_density(self):
         self.mesh_v.plot_element_quantity(self.density, min(self.density), max(self.density), cmap='cool')
+        
+#################        
+    def plot_eva(self, density):
+        self.mesh_v.plot_element_quantity(density, min(density), max(density), cmap='cool')
 
     
