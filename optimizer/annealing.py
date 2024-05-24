@@ -57,8 +57,8 @@ class Annealing(Optimizer):
                 pred_t_h = t[-1]
                 heaviside.append(pred_t_h)
 
-            density = np.array(sol) 
-            check = np.array(heaviside)
+            density = np.array(sol)     #continuous
+            check = np.array(heaviside)  # takes 0 or 1
             self.fem.update_element_density(density)
             ###
             epsilon = 8*(10**-2)
