@@ -76,7 +76,7 @@ class PolyTop(Optimizer):
         while l2-l1 > 1e-4:
             lmid = 0.5*(l1+l2)
             B = -(dfdz/dgdz)/lmid
-            zCnd = (np.multiply(zMin+(z0-zMin),B))**eta
+            zCnd = zMin+(np.multiply((z0-zMin),B**eta))
             zNew = np.fmax(np.fmax(np.fmin(np.fmin(zCnd,z0+move),zMax),z0-move),zMin)
             if ((g+dgdz.reshape((1,dgdz.shape[0]))@(zNew-z0))>0):
                 l1 = lmid
