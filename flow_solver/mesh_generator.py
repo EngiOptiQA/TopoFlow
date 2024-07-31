@@ -123,6 +123,7 @@ class Mesh(ABC):
                     offset_x = 0.
                     offset_y = 0.
                 plt.annotate(f'{i_elem}', (x_mid+offset_x, y_mid+offset_y), bbox = dict(boxstyle="round", fc="0.8"))
+
     def plot(self):
         if self.elem_type in ['Q1','Q2']:
             coords = self.coords
@@ -389,4 +390,230 @@ class MeshLChannel(Mesh):
         neighbor_elements = self.create_neighbor_elements(n_elem_for_width)
 
         return coords, elements, boundary_nodes, neighbor_elements
-    
+
+class MeshRectangle(Mesh):
+    def __init__(self, elem_type, n_elem_for_width, n_elem_for_height, width=1.0, height=1.0):
+        self.elem_type = elem_type
+        self.n_elem_for_width = n_elem_for_width
+        self.n_elem_for_height = n_elem_for_height
+        self.width = width
+        self.height = height
+        self.elem_width = width/n_elem_for_width
+        self.elem_height = height/n_elem_for_height
+        self.area = width*height
+        if elem_type == 'Q1':
+            self.coords, self.elements, self.boundary_nodes, self.neighbor_elements = self.create_mesh_Q1(n_elem_for_width, n_elem_for_height, width, height)
+        elif elem_type == 'Q2':
+            self.coords, self.elements, self.boundary_nodes, self.neighbor_elements = self.create_mesh_Q2(n_elem_for_width, n_elem_for_height, width, height)
+        else:
+            raise Exception(f"Unknown element type for L-channel mesh.")
+        super().__init__()
+
+    def create_nodes(self, n_nodes_for_width, n_nodes_for_height, width, height):
+
+        dx = width/(n_nodes_for_width-1)
+        dy = height/(n_nodes_for_height-1)
+
+        n_nodes = n_nodes_for_width*n_nodes_for_height
+        coords = np.zeros((n_nodes,2))
+        x = 0
+        for i in range(n_nodes_for_width):
+            y = 0
+            for j in range(n_nodes_for_height):
+                i_node = i*(n_nodes_for_height)+j
+                coords[i_node,:] = np.array([x,y])
+                y = y+dy
+            x = x+dx
+
+        boundary_nodes = self.create_boundary_nodes(n_nodes_for_width, n_nodes_for_height, coords)
+
+        return coords, boundary_nodes
+
+    def create_boundary_nodes(self, n_nodes_for_width, n_nodes_for_height, coords):
+
+        boundary_nodes = {'left': [], 'bottom': [], 'right': [], 'top': []}
+
+        for i in range(n_nodes_for_width):
+            for j in range(n_nodes_for_height):
+                i_node = i*(n_nodes_for_height)+j
+                if i == 0:
+                    boundary_nodes['left'].append(i_node)
+                elif i == n_nodes_for_width-1:
+                    boundary_nodes['right'].append(i_node)
+                elif j == 0:
+                    boundary_nodes['bottom'].append(i_node)
+                elif j == n_nodes_for_height-1:
+                     boundary_nodes['top'].append(i_node)
+
+        return boundary_nodes
+
+    def create_neighbor_elements(self, n_elem_for_width, n_elem_for_height):
+        neighbor_elements = []
+        for i in range(n_elem_for_width*n_elem_for_height):
+            t_adj = []
+            if i%n_elem_for_height!=0:
+                t_u = i-1
+                t_adj.append(t_u)
+            if i>=n_elem_for_height:
+                t_l = i-n_elem_for_height
+                t_adj.append(t_l)
+            if i%n_elem_for_height!=n_elem_for_height-1:
+                t_o = i+1
+                t_adj.append(t_o)
+            if (n_elem_for_width*n_elem_for_height)-i>n_elem_for_width:
+                t_r = i+n_elem_for_height
+                t_adj.append(t_r)
+            neighbor_elements.append(t_adj)
+
+        return neighbor_elements
+
+    def create_mesh_Q1(self, n_elem_for_width, n_elem_for_height, width, height):
+        '''
+            o----o----o----o
+            |    |    |    |
+            o ---o----o----o
+            |    |    |    |
+            o----o----o----o
+        '''
+
+        n_nodes_for_width  = n_elem_for_width+1
+        n_nodes_for_height = n_elem_for_height+1
+        coords, boundary_nodes = self.create_nodes(n_nodes_for_width, n_nodes_for_height, width, height)
+
+        # Create elements, i.e., the connectivity.
+        n_elem = n_elem_for_width*n_elem_for_height
+        elements = np.zeros((n_elem,4), dtype=int)
+        i_elem = 0
+
+        # Create elements.
+        for i in range(n_elem_for_width*(n_elem_for_height+1)):
+            if i%(n_elem_for_height+1)!=n_elem_for_height:
+                elements[i_elem,:] = [i,
+                                    i+n_elem_for_height+1,
+                                    i+n_elem_for_height+2,
+                                    i+1]
+                i_elem = i_elem+1
+
+        neighbor_elements = self.create_neighbor_elements(n_elem_for_width, n_elem_for_height)
+
+        return coords, elements, boundary_nodes, neighbor_elements
+
+    def create_mesh_Q2(self, n_elem_for_width, n_elem_for_height, width, height):
+        '''
+            o----o----o----o----o----o----o
+            |         |         |         |
+            o    o    o    o    o    o    o
+            |         |         |         |
+            o----o----o----o----o----o----o
+            |         |         |         |
+            o    o    o    o    o    o    o
+            |         |         |         |
+            o----o----o----o----o----o----o
+        '''
+        n_nodes_for_width  = 2*n_elem_for_width+1
+        n_nodes_for_height = 2*n_elem_for_height+1
+        coords, boundary_nodes = self.create_nodes(n_nodes_for_width, n_nodes_for_height, width, height)
+
+        # Create elements, i.e., the connectivity.
+        n_elem = n_elem_for_width*n_elem_for_height
+        elements = np.zeros((n_elem,9), dtype=int)
+        i_elem = 0
+
+        # Create elements.
+        for j in range(2*n_elem_for_width):
+            if j%2==0:
+                for k in range(2*n_elem_for_height+1):
+                    if k%2==0 and k%(2*n_elem_for_height+1)!=2*n_elem_for_height:
+                        i = j*(2*n_elem_for_height+1)+k
+                        elements[i_elem,:] = [i,
+                                        i+2*2*n_elem_for_height+2,
+                                        i+2*2*n_elem_for_height+4,
+                                        i+2,
+                                        i+2*n_elem_for_height+1,
+                                        i+2*2*n_elem_for_height+3,
+                                        i+2*n_elem_for_height+3,
+                                        i+1,
+                                        i+2*n_elem_for_height+2]
+                        i_elem = i_elem+1
+
+        neighbor_elements = self.create_neighbor_elements(n_elem_for_width, n_elem_for_height)
+
+        return coords, elements, boundary_nodes, neighbor_elements
+
+class MeshDiffuser(MeshRectangle):
+
+    def __init__(self, elem_type, n_elem_for_width, n_elem_for_height, width=1, height=1, outlet_height=1./3.):
+
+        self.outlet_height = outlet_height
+
+        if (height - 3*outlet_height) < 0.0:
+            raise Exception('Total height too small for outlet height!')
+
+        super().__init__(elem_type, n_elem_for_width, n_elem_for_height, width, height)
+
+    def create_boundary_nodes(self, n_nodes_for_width, n_nodes_for_height, coords):
+
+        boundary_nodes = {'inlet': [],
+                          'outlet': [],
+                          'wall': []}
+
+        for i in range(n_nodes_for_width):
+            for j in range(n_nodes_for_height):
+                i_node = i*(n_nodes_for_height)+j
+                if i == 0:
+                    boundary_nodes['inlet'].append(i_node)
+                elif i == n_nodes_for_width-1:
+                    y = coords[i_node, 1]
+                    if y >= self.outlet_height and y <= 2*self.outlet_height:
+                        boundary_nodes['outlet'].append(i_node)
+                    else:
+                        boundary_nodes['wall'].append(i_node)
+                elif j == 0 or j == n_nodes_for_height-1:
+                    boundary_nodes['wall'].append(i_node)
+
+        return boundary_nodes
+
+class MeshDoublePipe(MeshRectangle):
+
+    def __init__(self, elem_type, n_elem_for_width, n_elem_for_height, width=1., height=1., inlet_height=1./6., outlet_height=1./6.):
+        self.inlet_height = inlet_height
+        self.outlet_height = outlet_height
+
+        if (height - 4*inlet_height) < 0.0:
+            raise Exception('Total height too small for inlet height!')
+        elif (height - 4*outlet_height) < 0.0:
+            raise Exception('Total height too small for outlet height!')
+
+        super().__init__(elem_type, n_elem_for_width, n_elem_for_height, width, height)
+
+    def create_boundary_nodes(self, n_nodes_for_width, n_nodes_for_height, coords):
+
+        boundary_nodes = {'inlet_lower': [],
+                          'inlet_upper': [],
+                          'outlet_lower': [],
+                          'outlet_upper': [],
+                          'wall': []}
+
+        for i in range(n_nodes_for_width):
+            for j in range(n_nodes_for_height):
+                i_node = i*(n_nodes_for_height)+j
+                if i == 0:
+                    y = coords[i_node, 1]
+                    if y >= self.inlet_height and y <= 2*self.inlet_height:
+                        boundary_nodes['inlet_lower'].append(i_node)
+                    elif y >= self.height - 2*self.inlet_height and y <= self.height-self.inlet_height:
+                        boundary_nodes['inlet_upper'].append(i_node)
+                    else:
+                        boundary_nodes['wall'].append(i_node)
+                elif i == n_nodes_for_width-1:
+                    y = coords[i_node, 1]
+                    if y >= self.inlet_height and y <= 2*self.inlet_height:
+                        boundary_nodes['outlet_lower'].append(i_node)
+                    elif y >= self.height - 2*self.inlet_height and y <= self.height-self.inlet_height:
+                        boundary_nodes['outlet_upper'].append(i_node)
+                    else:
+                        boundary_nodes['wall'].append(i_node)
+                elif j == 0 or j == n_nodes_for_height-1:
+                    boundary_nodes['wall'].append(i_node)
+
+        return boundary_nodes
