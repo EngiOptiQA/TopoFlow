@@ -400,7 +400,7 @@ class MeshRectangle(Mesh):
         self.height = height
         self.elem_width = width/n_elem_for_width
         self.elem_height = height/n_elem_for_height
-        self.area = width*height
+        self.area = n_elem_for_width*n_elem_for_height
         if elem_type == 'Q1':
             self.coords, self.elements, self.boundary_nodes, self.neighbor_elements = self.create_mesh_Q1(n_elem_for_width, n_elem_for_height, width, height)
         elif elem_type == 'Q2':
