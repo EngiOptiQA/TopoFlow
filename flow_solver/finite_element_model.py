@@ -125,7 +125,7 @@ class FEM:
         for i in range(len(self.boundary_values_v)):
             fixed_dofs[0,i] = 2 * int(self.boundary_values_v[i,0]) + int(self.boundary_values_v[i,1])
             G[i] = self.boundary_values_v[i,2]
-        n_dofs = 2 * self.nn_v + self.nn_p + 1 # TODO Why + 1?
+        n_dofs = 2 * self.nn_v + self.nn_p
         free_dofs = np.setdiff1d(np.arange(n_dofs), fixed_dofs)
         
         # Set inverse permeability.
@@ -136,13 +136,11 @@ class FEM:
         # Setup system of equations.
         A = csr_matrix((k_A_mu + E[e]*k_A_alpha,(i_A,j_A)))
         B = csr_matrix((k_B,(i_B,j_B)))
-        Z = np.zeros((2*self.nn_v,1))
-        O = csr_matrix((self.nn_p, self.nn_p), dtype='int')
-        K_1 = hstack([A,B,Z])
-        K_2 = hstack(([B.T,O,csr_matrix(self.mesh_v.element_areas[0]*np.ones((self.nn_p,1)))]))
-        K_3 = hstack([Z.T,csr_matrix(self.mesh_v.element_areas[0]*np.ones(self.nn_p)),0])
-        K = vstack([K_1,K_2,K_3])
-        K = (K+K.transpose())/2
+        O = csr_matrix((self.nn_p, self.nn_p), dtype='float')
+        K_1 = hstack([A,B])
+        K_2 = hstack([B.T,O])
+        K = vstack([K_1,K_2]).tocsr()
+
         S = np.zeros((n_dofs,1)) 
         S[fixed_dofs,:] = G
 
