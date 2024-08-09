@@ -1,7 +1,6 @@
 from amplify import decode_solution, Solver
 import numpy as np
-
-from flow_solver.Q2Q1FEM import Plot_patch 
+ 
 from problems.topo_opt_level_set_fluid_flow import TopologyOptimizationProblem
 from .optimizer import Optimizer
 
