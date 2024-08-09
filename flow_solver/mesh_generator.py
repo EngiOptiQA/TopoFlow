@@ -460,7 +460,7 @@ class MeshRectangle(Mesh):
             if i%n_elem_for_height!=n_elem_for_height-1:
                 t_o = i+1
                 t_adj.append(t_o)
-            if (n_elem_for_width*n_elem_for_height)-i>n_elem_for_width:
+            if (n_elem_for_width*n_elem_for_height)-i>n_elem_for_height:
                 t_r = i+n_elem_for_height
                 t_adj.append(t_r)
             neighbor_elements.append(t_adj)
