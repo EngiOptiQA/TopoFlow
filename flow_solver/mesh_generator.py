@@ -577,7 +577,7 @@ class MeshDiffuser(MeshRectangle):
 
 class MeshDoublePipe(MeshRectangle):
 
-    def __init__(self, elem_type, n_elem_for_width, n_elem_for_height, width=1., height=1., inlet_height=1./6., outlet_height=1./6.):
+    def __init__(self, elem_type, n_elem_for_width, n_elem_for_height, width=1.5, height=1., inlet_height=1./6., outlet_height=1./6.):
         self.inlet_height = inlet_height
         self.outlet_height = outlet_height
 
