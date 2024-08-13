@@ -72,7 +72,7 @@ class TopologyOptimizationParameterTuning:
         # Create qubits.
         self.q = gen_symbols(BinaryPoly, self.n_elem, self.n_qubits_per_variable+1) # TODO +1 for ancilla qubit?
 
-    def generate_qubo_formulation(self, u, v, el, ge, hev, dc volume_fraction_max, neighbor_elements_Q1):
+    def generate_qubo_formulation(self, u, v, el, ge, hev, dc, volume_fraction_max, neighbor_elements_Q1):
         volume_max = volume_fraction_max * self.n_elem
 
         # Coefficient for porous resistance.
