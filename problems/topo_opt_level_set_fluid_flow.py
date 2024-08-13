@@ -38,12 +38,18 @@ class TopologyOptimizationProblem:
             t_vvec = v[k]/xc*2
             objective_function += lambda_dis*(resistance_coeff*(t_uvec*t_uvec+t_vvec*t_vvec) )
         # Regularization.
-        for k, q_k in enumerate(self.q):
-            level_set_elem = (sum_poly(q_k[:-1])/self.n_qubits_per_variable*2)-1
-            for l in neighbor_elements_Q1[k]:
-                q_l = self.q[l]
-                level_set_elem_neighbor = (sum_poly(q_l[:-1])/self.n_qubits_per_variable*2)-1
-                objective_function += lambda_reg/2*(level_set_elem-level_set_elem_neighbor)**2
+        for t_id,t_q in enumerate(self.q):
+            for tt_id in neighbor_elements_Q1[t_id]:
+                for t_coord in range(2): # 2 if it's two-dimensional; in general, n if it's n-dimensional
+                    if len(tt_id) == 1:
+                        phi_i = (sum_poly(t_q[:-1])/self.n_qubits_per_variable*2)-1
+                        phi_j = (sum_poly(self.q[tt_id[0]][:-1])/self.n_qubits_per_variable*2)-1
+                        t_obj = alpha_ge/2*((phi_i-phi_j)/2)**2
+                    elif len(tt_id) == 2:
+                        phi_i = (sum_poly(self.q[tt_id[0]][:-1])/self.n_qubits_per_variable*2)-1
+                        phi_j = (sum_poly(self.q[tt_id[1]][:-1])/self.n_qubits_per_variable*2)-1
+                        t_obj = alpha_ge/2*(phi_i-phi_j)**2
+                    objective_function += t_obj
         # Volume Constraint.
         volume_fluid = sum_poly([q_k[-1] for q_k in self.q]) # Sum up element-wise characteristic functions.
         objective_function += lambda_vol*(volume_fluid - volume_max)**2
