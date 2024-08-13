@@ -450,19 +450,21 @@ class MeshRectangle(Mesh):
     def create_neighbor_elements(self, n_elem_for_width, n_elem_for_height):
         neighbor_elements = []
         for i in range(n_elem_for_width*n_elem_for_height):
-            t_adj = []
-            if i%n_elem_for_height!=0:
+            t_adj_v = []
+            t_adj_h = []
+            if i%n_elem_for_height!=0: 
                 t_u = i-1
-                t_adj.append(t_u)
-            if i>=n_elem_for_height:
+                t_adj_v.append(t_u)
+            if i>=n_elem_for_height: 
                 t_l = i-n_elem_for_height
-                t_adj.append(t_l)
-            if i%n_elem_for_height!=n_elem_for_height-1:
+                t_adj_h.append(t_l)
+            if i%n_elem_for_height!=n_elem_for_height-1: 
                 t_o = i+1
-                t_adj.append(t_o)
-            if (n_elem_for_width*n_elem_for_height)-i>n_elem_for_height:
+                t_adj_v.append(t_o)
+            if (n_elem_for_width*n_elem_for_height)-i>n_elem_for_width: 
                 t_r = i+n_elem_for_height
-                t_adj.append(t_r)
+                t_adj_h.append(t_r)
+            t_adj = [t_adj_v,t_adj_h]
             neighbor_elements.append(t_adj)
 
         return neighbor_elements
