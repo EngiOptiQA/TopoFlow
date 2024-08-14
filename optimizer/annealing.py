@@ -14,6 +14,24 @@ class AnnealingSolver():
         result = solver.solve(problem.binary_quadratic_model)
         solution = decode_solution(problem.q, result[0].values)
         return solution
+     
+     def solve_timeout_analysis(self, problem):
+        solver = Solver(self.client) 
+        solver.sort_solution = False 
+        solver.client.parameters.outputs.sort = False 
+        solver.client.parameters.outputs.num_outputs = 0 
+        d = {"sampling_time":[],"energy":[]} 
+        result = solver.solve(problem.binary_quadratic_model)
+        for t, s in zip(solver.client_result.timing.time_stamps, result.solutions):
+            if s.is_feasible:
+                d["sampling_time"].append(t)
+                d["energy"].append(s.energy)
+        result = solver.solve(problem.binary_quadratic_model)
+        solution =[]
+        for i in range(len(d["energy"])):
+            solution.append( decode_solution(problem.q, result[i].values))
+        return solution, d
+ 
 
 class Annealing(Optimizer):
 
