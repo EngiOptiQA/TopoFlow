@@ -450,20 +450,21 @@ class MeshRectangle(Mesh):
     def create_neighbor_elements(self, n_elem_for_width, n_elem_for_height):
         neighbor_elements = []
         for i in range(n_elem_for_width*n_elem_for_height):
-            t_adj = []
-            if i%n_elem_for_height!=0:
-                t_u = i-1
-                t_adj.append(t_u)
-            if i>=n_elem_for_height:
-                t_l = i-n_elem_for_height
-                t_adj.append(t_l)
-            if i%n_elem_for_height!=n_elem_for_height-1:
-                t_o = i+1
-                t_adj.append(t_o)
-            if (n_elem_for_width*n_elem_for_height)-i>n_elem_for_height:
-                t_r = i+n_elem_for_height
-                t_adj.append(t_r)
-            neighbor_elements.append(t_adj)
+            neighbor_elements_vertical = []     # Vertical neighbors, i.e., lower and upper.
+            neighbor_elements_horizontal = []   # Horizontal neighbors, i.e., left and right.
+            if i%n_elem_for_height!=0: # lower
+                neighbor_element_lower = i-1
+                neighbor_elements_vertical.append(neighbor_element_lower)
+            if i>=n_elem_for_height: # left
+                neighbor_element_left = i-n_elem_for_height
+                neighbor_elements_horizontal.append(neighbor_element_left)
+            if i%n_elem_for_height!=n_elem_for_height-1:  # upper
+                neighbor_element_upper = i+1
+                neighbor_elements_vertical.append(neighbor_element_upper)
+            if (n_elem_for_width*n_elem_for_height)-i>n_elem_for_height:  # right
+                neighbor_element_right = i+n_elem_for_height
+                neighbor_elements_horizontal.append(neighbor_element_right)
+            neighbor_elements.append([neighbor_elements_vertical, neighbor_elements_horizontal])
 
         return neighbor_elements
 

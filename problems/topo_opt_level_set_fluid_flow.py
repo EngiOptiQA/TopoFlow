@@ -51,11 +51,30 @@ class TopologyOptimizationProblem:
             objective_function += lambda_dis*(resistance_coeff*(u[k]**2+v[k]**2) )
         # Regularization.
         for k, q_k in enumerate(self.q):
-            level_set_elem = (sum_poly(q_k[:-1])/self.n_qubits_per_variable*2)-1
-            for l in neighbor_elements_Q1[k]:
-                q_l = self.q[l]
-                level_set_elem_neighbor = (sum_poly(q_l[:-1])/self.n_qubits_per_variable*2)-1
-                objective_function += lambda_reg/2*(level_set_elem-level_set_elem_neighbor)**2
+            for i, direction in enumerate(['vertical', 'horizontal']):
+                neighbors = neighbor_elements_Q1[k][i]
+                if len(neighbors) == 1: # one-sided gradient approximation
+                    l = neighbors[0]
+                    q_l = self.q[l]
+                    level_set_elem = (sum_poly(q_k[:-1])/self.n_qubits_per_variable*2)-1
+                    level_set_elem_neighbor = (sum_poly(q_l[:-1])/self.n_qubits_per_variable*2)-1
+                    gradient_approx = level_set_elem-level_set_elem_neighbor/2
+                    if direction == 'horizontal':
+                        gradient_approx_x = gradient_approx
+                    elif direction == 'vertical':
+                        gradient_approx_y = gradient_approx
+                elif len(neighbors) == 2: # central gradient approximation
+                    l = neighbors[0]; m = neighbors[1]
+                    q_l = self.q[l]; q_m = self.q[m]
+                    level_set_elem_neighbor_0 = (sum_poly(q_l[:-1])/self.n_qubits_per_variable*2)-1
+                    level_set_elem_neighbor_1 = (sum_poly(q_m[:-1])/self.n_qubits_per_variable*2)-1
+                    gradient_approx = level_set_elem_neighbor_0-level_set_elem_neighbor_1
+                    if direction == 'horizontal':
+                        gradient_approx_x = gradient_approx
+                    elif direction == 'vertical':
+                        gradient_approx_y = gradient_approx
+            objective_function += lambda_reg*(gradient_approx_x**2+gradient_approx_y**2)
+
         # Volume Constraint.
         volume_fluid = sum_poly([q_k[-1] for q_k in self.q]) # Sum up element-wise characteristic functions.
         objective_function += lambda_vol*(volume_fluid - volume_max)**2
