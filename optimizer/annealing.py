@@ -20,10 +20,8 @@ class Annealing(Optimizer):
     def __init__(self, fem):
         self.fem = fem
 
-    def optimize(self, annealing_solver, density_initial, volume_fraction_max, hyperparameters):
+    def optimize(self, annealing_solver, density_initial, volume_fraction_max, hyperparameters, max_opt_steps=10, tol=1e-2):
         
-        max_iterations_annealing = 3
-
         n_qubits_per_variable = 9
 
         objective_function_list = []
@@ -39,7 +37,7 @@ class Annealing(Optimizer):
         problem = TopologyOptimizationProblem(self.fem.ne, n_qubits_per_variable)
         problem.generate_discretizaton()
 
-        for i_opt in range(max_iterations_annealing):
+        for i_opt in range(max_opt_steps):
 
             level_set_scaled_old = level_set_scaled
             problem.generate_qubo_formulation(hyperparameters, u, v, volume_fraction_max, resistance_coeff_solid, self.fem.mesh_v.neighbor_elements)
@@ -61,7 +59,7 @@ class Annealing(Optimizer):
             print(f'Iteration: {i_opt}, Objective Function: {f_eva}, Volume Fraction: {volume_fraction}')
 
             self.fem.plot_eva(char_func)
-            if np.max(np.abs(level_set_scaled_old-level_set))<0.01:
+            if np.max(np.abs(level_set_scaled_old-level_set))<tol:
                 break
 
         self.objective_function_list = objective_function_list
