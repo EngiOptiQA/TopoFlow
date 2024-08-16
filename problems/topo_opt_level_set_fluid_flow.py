@@ -31,15 +31,14 @@ class TopologyOptimizationProblem:
 
         return np.array(level_set), np.array(level_set_scaled), np.array(char_func)
 
-    def generate_qubo_formulation(self, u, v, xc, volume_fraction_max, resistance_coeff_solid, neighbor_elements_Q1):
+    def generate_qubo_formulation(self, hyperparameters, u, v, volume_fraction_max, resistance_coeff_solid, neighbor_elements_Q1):
         volume_max = volume_fraction_max * self.n_elem
 
-
         # Coefficients for...
-        lambda_dis  = 4*100*5.  # energy dissipation
-        lambda_reg  = 10.       # regularization term
-        lambda_vol  = 600.0     # volume constraint
-        lambda_char = 300.0     # consistency between level-set and characteristic functions
+        lambda_dis  = hyperparameters['energy_dissipation'] # energy dissipation
+        lambda_reg  = hyperparameters['regularization']     # regularization term
+        lambda_vol  = hyperparameters['volume_constraint']  # volume constraint
+        lambda_char = hyperparameters['char_func']          # consistency between level-set and characteristic functions
 
         # Initialize objective function.
         objective_function = BinaryPoly()
@@ -49,9 +48,7 @@ class TopologyOptimizationProblem:
         for k in range(self.n_elem):
             char_func_elem = self.q[k][-1]
             resistance_coeff = (1-char_func_elem)*resistance_coeff_solid
-            t_uvec = u[k]/xc*2
-            t_vvec = v[k]/xc*2
-            objective_function += lambda_dis*(resistance_coeff*(t_uvec*t_uvec+t_vvec*t_vvec) )
+            objective_function += lambda_dis*(resistance_coeff*(u[k]**2+v[k]**2) )
         # Regularization.
         for k, q_k in enumerate(self.q):
             level_set_elem = (sum_poly(q_k[:-1])/self.n_qubits_per_variable*2)-1

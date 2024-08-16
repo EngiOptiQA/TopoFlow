@@ -20,8 +20,7 @@ class Annealing(Optimizer):
     def __init__(self, fem):
         self.fem = fem
 
-    def optimize(self, annealing_solver,
-                 density_initial, density_min, density_max, volume_fraction_max):
+    def optimize(self, annealing_solver, density_initial, volume_fraction_max, hyperparameters):
         
         max_iterations_annealing = 3
 
@@ -41,14 +40,9 @@ class Annealing(Optimizer):
         problem.generate_discretizaton()
 
         for i_opt in range(max_iterations_annealing):
-            # if i_opt==0:
-            #     xc = 2
-            # else:
-            #     xc = max(np.sqrt(u**2+v**2))
-            xc = 2
 
             level_set_scaled_old = level_set_scaled
-            problem.generate_qubo_formulation(u, v, xc, volume_fraction_max, resistance_coeff_solid, self.fem.mesh_v.neighbor_elements)
+            problem.generate_qubo_formulation(hyperparameters, u, v, volume_fraction_max, resistance_coeff_solid, self.fem.mesh_v.neighbor_elements)
             binary_solution = annealing_solver.solve_qubo_problem(problem)
             # Level-set in [-1,1], level-set scaled in [0,1], characteristic function in {0,1}
             level_set, level_set_scaled, char_func = problem.get_functions_from_binary_solution(binary_solution)
