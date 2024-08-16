@@ -17,7 +17,7 @@ class QuadratureRule:
             self.w = np.array([25., 40., 25., 40., 64., 40., 25., 40., 25.]) / 81.0  # Weights of quadrature points
             self.n = len(self.x)
 class FEM:
-    def __init__(self, mesh_v, mesh_p, viscosity, density_uniform):
+    def __init__(self, mesh_v, mesh_p, viscosity, density_uniform, epsilon=None):
         self.mesh_v = mesh_v
         self.mesh_p = mesh_p
         
@@ -35,6 +35,8 @@ class FEM:
 
         self.viscosity = viscosity
         self.density = density_uniform*np.ones(mesh_v.n_elem)
+
+        self.epsilon = epsilon
 
         self.boundary_values_v = None
 
@@ -128,10 +130,10 @@ class FEM:
         n_dofs = 2 * self.nn_v + self.nn_p
         free_dofs = np.setdiff1d(np.arange(n_dofs), fixed_dofs)
         
-        # Set inverse permeability.
+        # Set inverse permeability, i.e., resistance coefficient.
         if E is None:
-            epsilon = 8*(10**-2)
-            E = 1./epsilon*(1-self.density)*0.01/(0.01+self.density)
+            # TODO Why q = 0.01?
+            E = self.viscosity/self.epsilon*(1-self.density)*0.01/(0.01+self.density)
 
         # Setup system of equations.
         A = csr_matrix((k_A_mu + E[e]*k_A_alpha,(i_A,j_A)))

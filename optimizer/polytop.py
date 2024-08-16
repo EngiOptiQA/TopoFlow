@@ -23,7 +23,7 @@ class PolyTop(Optimizer):
             print(str(f' q = {q} ').center(40, '#'))
             tolerance = design_tolerance*(density_max-density_min)
             design_change = 2*tolerance
-            E, dEdy, V, dVdy = self.mat_int_fnc(P*density, np.array([self.fem.viscosity, q]))
+            E, dEdy, V, dVdy = self.mat_int_fnc(P*density, q)
             i_opt = 0
             while i_opt < max_iterations and design_change > tolerance:
                 i_opt += 1
@@ -33,7 +33,7 @@ class PolyTop(Optimizer):
                 dgdz = P.T*(np.multiply(dEdy,dgdE)+np.multiply(dVdy,dgdV))
                 density, design_change = self.update_scheme(dfdz,g,dgdz,density,density_min,density_max,opt_OCMove,opt_OCEta)
                 self.fem.update_element_density(density)
-                E, dEdy, V, dVdy = self.mat_int_fnc(P*density, np.array([self.fem.viscosity, q]))
+                E, dEdy, V, dVdy = self.mat_int_fnc(P*density, q)
                 volume_fraction = density.sum()/self.fem.mesh_v.area
                 print(f'Iteration: {i_opt}, Objective Function: {f}, Volume Fraction: {volume_fraction}')
                 objective_function_list.append(f)
@@ -86,12 +86,9 @@ class PolyTop(Optimizer):
         return zNew,Change
 
     # Material interpolation function.
-    def mat_int_fnc(self, y, param):
-        mu0 = param[0]
-        q = param[1]
-        epsilon = 8*(10**-2)
-        E = (mu0/epsilon)*q*(1-y)/(y+q)
-        dEdy = -(mu0/epsilon)*(1+q)*q/((y+q)**2)
+    def mat_int_fnc(self, y, q):
+        E = (self.fem.viscosity/self.fem.epsilon)*q*(1-y)/(y+q)
+        dEdy = -(self.fem.viscosity/self.fem.epsilon)*(1+q)*q/((y+q)**2)
         V = y
         dVdy = np.ones(y.shape[0])
         return E, dEdy, V, dVdy

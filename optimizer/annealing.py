@@ -30,8 +30,9 @@ class Annealing(Optimizer):
         objective_function_list = []
         volume_fraction_list = []
 
+        resistance_coeff_solid = self.fem.viscosity/self.fem.epsilon
+
         density = density_initial
-       
         self.fem.update_element_density(density)
         _, u, v, _, _, f = self.fem.solve()
 
@@ -45,7 +46,7 @@ class Annealing(Optimizer):
             #     xc = max(np.sqrt(u**2+v**2))
             xc = 2
             density_old = density
-            problem.generate_qubo_formulation(u, v, xc, volume_fraction_max, self.fem.mesh_v.neighbor_elements)
+            problem.generate_qubo_formulation(u, v, xc, volume_fraction_max, resistance_coeff_solid, self.fem.mesh_v.neighbor_elements)
             solution = annealing_solver.solve_qubo_problem(problem)
 
             sol = []
@@ -60,8 +61,7 @@ class Annealing(Optimizer):
             check = np.array(heaviside)  # takes 0 or 1
             self.fem.update_element_density(density)
             ###
-            epsilon = 8*(10**-2)
-            E_eva = 1./epsilon*(1-check)*1/(1+check)
+            E_eva = resistance_coeff_solid*(1-check)
             _, _, _, _, _, f_eva = self.fem.solve(E_eva)
             
             ###
