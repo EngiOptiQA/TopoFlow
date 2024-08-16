@@ -1,4 +1,5 @@
 from amplify import BinaryPoly, gen_symbols, sum_poly
+import numpy as np
 
 class TopologyOptimizationProblem:
 
@@ -13,6 +14,22 @@ class TopologyOptimizationProblem:
         #    - N qubits for the level-set function
         #    - 1 qubit for the characteristic function
         self.q = gen_symbols(BinaryPoly, self.n_elem, self.n_qubits_per_variable+1)
+
+    def get_functions_from_binary_solution(self, solution):
+
+        level_set = []
+        level_set_scaled = []
+        char_func = []
+        for q_k in solution:
+            level_set_scaled_elem = np.sum(q_k[:-1])/self.n_qubits_per_variable
+            level_set_elem = 2. * level_set_scaled_elem - 1.
+            char_func_elem = q_k[-1]
+
+            level_set.append(level_set_elem)
+            level_set_scaled.append(level_set_scaled_elem)
+            char_func.append(char_func_elem)
+
+        return np.array(level_set), np.array(level_set_scaled), np.array(char_func)
 
     def generate_qubo_formulation(self, u, v, xc, volume_fraction_max, resistance_coeff_solid, neighbor_elements_Q1):
         volume_max = volume_fraction_max * self.n_elem

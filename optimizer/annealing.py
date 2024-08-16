@@ -32,8 +32,9 @@ class Annealing(Optimizer):
 
         resistance_coeff_solid = self.fem.viscosity/self.fem.epsilon
 
-        density = density_initial
-        self.fem.update_element_density(density)
+        # Note that density <-> level-set scaled (both from 0 to 1)
+        level_set_scaled = density_initial
+        self.fem.update_element_density(level_set_scaled)
         _, u, v, _, _, f = self.fem.solve()
 
         problem = TopologyOptimizationProblem(self.fem.ne, n_qubits_per_variable)
@@ -45,35 +46,28 @@ class Annealing(Optimizer):
             # else:
             #     xc = max(np.sqrt(u**2+v**2))
             xc = 2
-            density_old = density
+
+            level_set_scaled_old = level_set_scaled
             problem.generate_qubo_formulation(u, v, xc, volume_fraction_max, resistance_coeff_solid, self.fem.mesh_v.neighbor_elements)
-            solution = annealing_solver.solve_qubo_problem(problem)
-
-            sol = []
-            heaviside = []
-            for t in solution:
-                pred_t_d = np.sum(t[:-1])/n_qubits_per_variable
-                sol.append(pred_t_d)
-                pred_t_h = t[-1]
-                heaviside.append(pred_t_h)
-
-            density = np.array(sol)     #continuous
-            check = np.array(heaviside)  # takes 0 or 1
-            self.fem.update_element_density(density)
+            binary_solution = annealing_solver.solve_qubo_problem(problem)
+            # Level-set in [-1,1], level-set scaled in [0,1], characteristic function in {0,1}
+            level_set, level_set_scaled, char_func = problem.get_functions_from_binary_solution(binary_solution)
+            # TODO Difference between the following evaluations for level-set scaled/characteristic function?
+            self.fem.update_element_density(level_set_scaled)
             ###
-            E_eva = resistance_coeff_solid*(1-check)
+            E_eva = resistance_coeff_solid*(1-char_func)
             _, _, _, _, _, f_eva = self.fem.solve(E_eva)
             
             ###
             _, u, v, _, _, f = self.fem.solve()
 
-            volume_fraction = sum(sol)/self.fem.mesh_p.area
+            volume_fraction = sum(level_set_scaled)/self.fem.mesh_p.area
             objective_function_list.append(f_eva)
             volume_fraction_list.append(volume_fraction)
             print(f'Iteration: {i_opt}, Objective Function: {f_eva}, Volume Fraction: {volume_fraction}')
-            # self.fem.plot_density()
-            self.fem.plot_eva(check)
-            if np.max(np.abs(density_old-density))<0.01:
+
+            self.fem.plot_eva(char_func)
+            if np.max(np.abs(level_set_scaled_old-level_set))<0.01:
                 break
 
         self.objective_function_list = objective_function_list
