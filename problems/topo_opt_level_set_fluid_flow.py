@@ -14,11 +14,9 @@ class TopologyOptimizationProblem:
         #    - 1 qubit for the characteristic function
         self.q = gen_symbols(BinaryPoly, self.n_elem, self.n_qubits_per_variable+1)
 
-    def generate_qubo_formulation(self, u, v, xc, volume_fraction_max, neighbor_elements_Q1):
+    def generate_qubo_formulation(self, u, v, xc, volume_fraction_max, resistance_coeff_solid, neighbor_elements_Q1):
         volume_max = volume_fraction_max * self.n_elem
 
-        # Resistance coefficient for porous medium (solid).
-        resistance_coeff_solid= 10**2/4.
 
         # Coefficients for...
         lambda_dis  = 4*100*5.  # energy dissipation
