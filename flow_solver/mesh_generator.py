@@ -146,7 +146,7 @@ class Mesh(ABC):
         else:
             raise Exception(f"Plotting the mesh not implemented for element type '{self.elem_type}'")
 
-    def plot_element_quantity(self, quantity, quantity_min, quantity_max, cmap='jet'):
+    def plot_element_quantity(self, quantity, quantity_min, quantity_max, cmap='jet', title=None):
         ax = plt.axes()
         cm = plt.get_cmap(cmap)
         norm = colors.Normalize(vmin=quantity_min, vmax=quantity_max)
@@ -164,9 +164,11 @@ class Mesh(ABC):
 
         cbar = plt.colorbar(scalar_map)
         #cbar.set_label('Quantity')
+        if title is not None:
+            ax.set_title(title)
         plt.show()
 
-    def plot_vector_field(self, vector_field):
+    def plot_vector_field(self, vector_field, title=None):
         centr = np.zeros((2,self.n_elem))
         for i in range(self.n_elem):
             centr[0,i]=np.mean(self.coords[self.elements[i,:], 0])
@@ -176,6 +178,8 @@ class Mesh(ABC):
 
         for i in range(self.n_elem):
             plt.quiver(centr[0,i], centr[1,i], vector_field[0][i], vector_field[1][i],angles='xy', scale_units='xy', scale=7, width=0.005,color='dodgerblue')
+        if title is not None:
+            ax.set_title(title)
         plt.show()
 
 class MeshLChannel(Mesh):
