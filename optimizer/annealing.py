@@ -58,14 +58,16 @@ class Annealing(Optimizer):
 
             if plot_steps:
                 self.fem.plot_eva(char_func, title='Characteristic Function')
+                self.fem.plot_eva(level_set, title='Level-Set')
                 if n_inconsistencies > 0:
                     self.fem.plot_eva(inconsistencies, title='Inconsistencies')
 
-            if np.max(np.abs(level_set_scaled_old-level_set))<tol:
+            if np.max(np.abs(level_set_scaled_old-level_set_scaled))<tol:
                 break
 
         if not plot_steps:
             self.fem.plot_eva(char_func, title='Characteristic Function')
+            self.fem.plot_eva(level_set, title='Level-Set')
             if n_inconsistencies > 0:
                 self.fem.plot_eva(inconsistencies, title='Inconsistencies')
 
