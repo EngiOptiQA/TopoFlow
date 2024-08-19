@@ -8,11 +8,32 @@ class AnnealingSolver():
     def __init__(self, client):
         self.client = client
 
-    def solve_qubo_problem(self, problem):
-        solver = Solver(self.client) 
+    def solve_qubo_problem(self, problem, track_history=False):
+        solver = Solver(self.client)
+
+        if track_history:
+            # Let the order in which multiple solutions are stored depend on the output order of the client machine.
+            solver.sort_solution = False
+            # Do not sort spin arrays and energy values in ascending order of energy values.
+            solver.client.parameters.outputs.sort = False
+            # Output all spin arrays and energy values.
+            solver.client.parameters.outputs.num_outputs = 0
+
         result = solver.solve(problem.binary_quadratic_model)
-        solution = decode_solution(problem.q, result[0].values)
-        return solution
+
+        if track_history:
+            history = {"sampling_time":[], "energy":[]}
+            for t, s in zip(solver.client_result.timing.time_stamps, result.solutions):
+                if s.is_feasible:
+                    history["sampling_time"].append(t)
+                    history["energy"].append(s.energy)
+            solution =[]
+            for i in range(len(history["energy"])):
+                solution.append(decode_solution(problem.q, result[i].values))
+            return solution, history
+        else:
+            solution = decode_solution(problem.q, result[0].values)
+            return solution
 
 class Annealing(Optimizer):
 
