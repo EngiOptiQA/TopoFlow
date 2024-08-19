@@ -257,7 +257,7 @@ class FEM:
         self.mesh_v.plot_element_quantity(velocity_magnitude, min(velocity_magnitude), max(velocity_magnitude), title='Velocity Magnitude')
 
     def plot_pressure(self, pressure):
-        self.mesh_p.plot_element_quantity(pressure, min(pressure), max(pressure, title='Pressure'))
+        self.mesh_p.plot_element_quantity(pressure, min(pressure), max(pressure), title='Pressure')
 
     def plot_density(self):
         self.mesh_v.plot_element_quantity(self.density, min(self.density), max(self.density), cmap='cool', title='Density')
