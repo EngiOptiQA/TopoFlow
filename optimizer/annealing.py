@@ -21,8 +21,6 @@ class Annealing(Optimizer):
 
     def optimize(self, annealing_solver, problem, level_set_scaled_initial, max_opt_steps=10, tol=1e-2, plot_steps=False):
         
-        # n_qubits_per_variable = 9
-
         objective_function_list = []
         volume_fraction_list = []
 
@@ -32,9 +30,6 @@ class Annealing(Optimizer):
         level_set_scaled = level_set_scaled_initial
         self.fem.update_element_density(level_set_scaled)
         _, u, v, _, _, f = self.fem.solve()
-
-        # problem = TopologyOptimizationProblem(self.fem.ne, n_qubits_per_variable)
-        # problem.generate_discretizaton()
 
         for i_opt in range(max_opt_steps):
 
