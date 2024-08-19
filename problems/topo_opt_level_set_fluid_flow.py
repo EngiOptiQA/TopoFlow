@@ -3,9 +3,11 @@ import numpy as np
 
 class TopologyOptimizationProblem:
 
-    def __init__(self, n_elem, n_qubits_per_variable):
+    def __init__(self, n_elem, n_qubits_per_variable, hyperparameters, volume_fraction_max):
         self.n_elem = n_elem
         self.n_qubits_per_variable = n_qubits_per_variable
+        self.hyperparameters = hyperparameters
+        self.volume_fraction_max = volume_fraction_max
 
     def generate_discretizaton(self):
         
@@ -15,15 +17,30 @@ class TopologyOptimizationProblem:
         #    - 1 qubit for the characteristic function
         self.q = gen_symbols(BinaryPoly, self.n_elem, self.n_qubits_per_variable+1)
 
-    def get_functions_from_binary_solution(self, solution):
+    def set_hyperparameters(self, hyperparameters):
+        self.hyperparameters = hyperparameters
+
+    def get_level_set_from_binary_solution(self, q_k):
+
+        level_set_scaled_elem = np.sum(q_k[:-1])/self.n_qubits_per_variable
+        level_set_elem = 2. * level_set_scaled_elem - 1.
+
+        return level_set_elem, level_set_scaled_elem
+
+    def get_char_func_from_binary_solution(self, q_k):
+
+        char_func_elem = q_k[-1]
+
+        return char_func_elem
+
+    def get_functions_from_binary_solutions(self, solutions):
 
         level_set = []
         level_set_scaled = []
         char_func = []
-        for q_k in solution:
-            level_set_scaled_elem = np.sum(q_k[:-1])/self.n_qubits_per_variable
-            level_set_elem = 2. * level_set_scaled_elem - 1.
-            char_func_elem = q_k[-1]
+        for q_k in solutions:
+            level_set_elem, level_set_scaled_elem = self.get_level_set_from_binary_solution(q_k)
+            char_func_elem = self.get_char_func_from_binary_solution(q_k)
 
             level_set.append(level_set_elem)
             level_set_scaled.append(level_set_scaled_elem)
@@ -31,14 +48,27 @@ class TopologyOptimizationProblem:
 
         return np.array(level_set), np.array(level_set_scaled), np.array(char_func)
 
-    def generate_qubo_formulation(self, hyperparameters, u, v, volume_fraction_max, resistance_coeff_solid, neighbor_elements_Q1):
-        volume_max = volume_fraction_max * self.n_elem
+    def get_inconsistencies_from_solutions(self, solutions):
+
+        inconsistencies = np.zeros(len(solutions), dtype=int)
+        for k, q_k in enumerate(solutions):
+            level_set_elem, level_set_scaled_elem = self.get_level_set_from_binary_solution(q_k)
+            char_func_elem = self.get_char_func_from_binary_solution(q_k)
+
+            if ((level_set_elem > 0. and char_func_elem == 0) or 
+                (level_set_elem < 0. and char_func_elem == 1)):
+                inconsistencies[k] =1
+        return inconsistencies
+
+
+    def generate_qubo_formulation(self, u, v, resistance_coeff_solid, neighbor_elements_Q1):
+        volume_max = self.volume_fraction_max * self.n_elem
 
         # Coefficients for...
-        lambda_dis  = hyperparameters['energy_dissipation'] # energy dissipation
-        lambda_reg  = hyperparameters['regularization']     # regularization term
-        lambda_vol  = hyperparameters['volume_constraint']  # volume constraint
-        lambda_char = hyperparameters['char_func']          # consistency between level-set and characteristic functions
+        lambda_dis  = self.hyperparameters['energy_dissipation'] # energy dissipation
+        lambda_reg  = self.hyperparameters['regularization']     # regularization term
+        lambda_vol  = self.hyperparameters['volume_constraint']  # volume constraint
+        lambda_char = self.hyperparameters['char_func']          # consistency between level-set and characteristic functions
 
         # Initialize objective function.
         objective_function = BinaryPoly()
