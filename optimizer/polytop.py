@@ -46,6 +46,8 @@ class PolyTop(Optimizer):
         self.objective_function_list = objective_function_list
         self.volume_fraction_list = volume_fraction_list
 
+        return density
+
     def constraint_fnc(self, E, V, volume_fraction_max):
         element_areas = self.fem.mesh_v.element_areas
 
