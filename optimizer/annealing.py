@@ -47,10 +47,11 @@ class Annealing(Optimizer):
 
         resistance_coeff_solid = self.fem.viscosity/self.fem.epsilon
 
-        # Note that level-set scaled <-> density (both from 0 to 1)
+        # Compute initial velocity field.
         level_set_scaled = level_set_scaled_initial
-        self.fem.update_element_density(level_set_scaled)
-        _, u, v, _, _, f = self.fem.solve()
+        char_func_initial = np.where(level_set_scaled_initial >= 0.5, 1, 0)
+        E = resistance_coeff_solid*(1-char_func_initial)
+        _, u, v, _, _, f = self.fem.solve(E)
 
         for i_opt in range(max_opt_steps):
 
@@ -61,21 +62,20 @@ class Annealing(Optimizer):
 
             # Level-set in [-1,1], level-set scaled in [0,1], characteristic function in {0,1}
             level_set, level_set_scaled, char_func = problem.get_functions_from_binary_solutions(binary_solutions)
-            # TODO Difference between the following evaluations for level-set scaled/characteristic function?
-            self.fem.update_element_density(level_set_scaled)
-            ###
-            E_eva = resistance_coeff_solid*(1-char_func)
-            _, _, _, _, _, f_eva = self.fem.solve(E_eva)
-            
-            ###
-            _, u, v, _, _, f = self.fem.solve()
 
-            volume_fraction = sum(level_set_scaled)/self.fem.mesh_p.area
-            objective_function_list.append(f_eva)
-            volume_fraction_list.append(volume_fraction)
+            # Evaluate velocity field and objective function.
+            E = resistance_coeff_solid*(1-char_func)
+            _, u, v, _, _, f = self.fem.solve(E)
+            # Evaluate volume fraction.
+            volume_fraction = sum(char_func)/self.fem.mesh_p.area
+            # Detect inconsistencies between level-set and characteristic functons.
             inconsistencies = problem.get_inconsistencies_from_solutions(binary_solutions)
             n_inconsistencies = np.sum(inconsistencies)
-            print(f'Iteration: {i_opt}, Objective Function: {f_eva}, Volume Fraction: {volume_fraction}, Inconsistencies: {n_inconsistencies}')
+
+            objective_function_list.append(f)
+            volume_fraction_list.append(volume_fraction)
+
+            print(f'Iteration: {i_opt}, Objective Function: {f}, Volume Fraction: {volume_fraction}, Inconsistencies: {n_inconsistencies}')
 
             if plot_steps:
                 self.fem.plot_eva(char_func, title='Characteristic Function')
