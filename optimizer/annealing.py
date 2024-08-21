@@ -49,13 +49,16 @@ class Annealing(Optimizer):
 
         # Compute initial velocity field.
         level_set_scaled = level_set_scaled_initial
-        char_func_initial = np.where(level_set_scaled_initial >= 0.5, 1, 0)
-        E = resistance_coeff_solid*(1-char_func_initial)
+        char_func = np.where(level_set_scaled >= 0.5, 1, 0)
+        E = resistance_coeff_solid*(1-char_func)
         _, u, v, _, _, f = self.fem.solve(E)
 
         for i_opt in range(max_opt_steps):
 
             level_set_scaled_old = level_set_scaled
+            char_func_old = char_func
+            f_old = f
+
             problem.generate_qubo_formulation(u, v, resistance_coeff_solid, self.fem.mesh_v.neighbor_elements)
             binary_solutions = annealing_solver.solve_qubo_problem(problem)
             self.binary_solutions_optimum = binary_solutions
@@ -79,18 +82,28 @@ class Annealing(Optimizer):
 
             if plot_steps:
                 self.fem.plot_eva(char_func, title='Characteristic Function')
-                self.fem.plot_eva(level_set, title='Level-Set')
-                if n_inconsistencies > 0:
-                    self.fem.plot_eva(inconsistencies, title='Inconsistencies')
+                if problem.hyperparameters['regularization'] > 0:
+                    self.fem.plot_eva(level_set, title='Level-Set')
+                    if n_inconsistencies > 0:
+                        self.fem.plot_eva(inconsistencies, title='Inconsistencies')
 
-            if np.max(np.abs(level_set_scaled_old-level_set_scaled))<tol:
+            char_func_abs_change = np.sum(np.abs(char_func_old-char_func))
+            char_func_rel_change = char_func_abs_change/np.sum(char_func_old)
+            objective_function_rel_change = abs(f-f_old)/f_old
+            print(f'Abs. change in\n'+
+                  f'\tchar. func.:{char_func_abs_change}')
+            print(f'Rel. change in\n'+
+                  f'\tchar. func.:{char_func_rel_change}\n'+
+                  f'\tObj. func.: {objective_function_rel_change}')
+            if objective_function_rel_change < tol:
                 break
 
         if not plot_steps:
             self.fem.plot_eva(char_func, title='Characteristic Function')
-            self.fem.plot_eva(level_set, title='Level-Set')
-            if n_inconsistencies > 0:
-                self.fem.plot_eva(inconsistencies, title='Inconsistencies')
+            if problem.hyperparameters['regularization'] > 0:
+                self.fem.plot_eva(level_set, title='Level-Set')
+                if n_inconsistencies > 0:
+                    self.fem.plot_eva(inconsistencies, title='Inconsistencies')
 
         self.objective_function_list = objective_function_list
         self.volume_fraction_list = volume_fraction_list
