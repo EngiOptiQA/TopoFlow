@@ -1,6 +1,7 @@
 from amplify import decode_solution, Solver
 import numpy as np
- 
+import os
+
 from .optimizer import Optimizer
 
 class AnnealingSolver():
@@ -40,7 +41,7 @@ class Annealing(Optimizer):
     def __init__(self, fem):
         self.fem = fem
 
-    def optimize(self, annealing_solver, problem, level_set_scaled_initial, max_opt_steps=10, tol=1e-2, plot_steps=False):
+    def optimize(self, annealing_solver, problem, level_set_scaled_initial, max_opt_steps=10, tol=1e-2, plot_steps=False, output_path=None, tikz=False):
         
         objective_function_list = []
         volume_fraction_list = []
@@ -99,9 +100,14 @@ class Annealing(Optimizer):
                 break
 
         if not plot_steps:
-            self.fem.plot_eva(char_func, title='Characteristic Function')
+            file_name = None
+            if output_path:
+                file_name = os.path.join(output_path, 'char_func')
+            self.fem.plot_eva(char_func, title='Characteristic Function', cmap='gray', file_name=file_name, tikz=tikz)
             if problem.hyperparameters['regularization'] > 0:
-                self.fem.plot_eva(level_set, title='Level-Set')
+                if output_path:
+                    file_name = os.path.join(output_path, 'level_set')
+                self.fem.plot_eva(level_set, title='Level-Set', cmap='gray', file_name=file_name, tikz=tikz)
                 if n_inconsistencies > 0:
                     self.fem.plot_eva(inconsistencies, title='Inconsistencies')
 
@@ -111,3 +117,5 @@ class Annealing(Optimizer):
         self.objective_function = self.objective_function_list[-1]
         self.volume_fraction = self.volume_fraction_list[-1]
         self.n_inconsistencies = n_inconsistencies
+
+        return char_func

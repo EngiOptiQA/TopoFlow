@@ -19,13 +19,16 @@ class PolyTop(Optimizer):
 
         P = csr_matrix(np.identity(self.fem.mesh_v.n_elem))
 
+        objective_function_old = 0.
         for q in q_values:
             print(str(f' q = {q} ').center(40, '#'))
             tolerance = design_tolerance*(density_max-density_min)
             design_change = 2*tolerance
+            objective_function_change = 2*tolerance
             E, dEdy, V, dVdy = self.mat_int_fnc(P*density, q)
             i_opt = 0
-            while i_opt < max_iterations and design_change > tolerance:
+
+            while i_opt < max_iterations and objective_function_change > tolerance:
                 i_opt += 1
                 g, dgdE, dgdV = self.constraint_fnc(E, V, volume_fraction_max)
                 f, dfdE, dfdV = self.objective_fnc(E, V)
@@ -37,6 +40,12 @@ class PolyTop(Optimizer):
                 volume_fraction = density.sum()/self.fem.mesh_v.area
                 print(f'Iteration: {i_opt}, Objective Function: {f}, Volume Fraction: {volume_fraction}')
                 objective_function_list.append(f)
+                if abs(objective_function_old) > 0:
+                    objective_function_change = abs(f-objective_function_old)/objective_function_old
+                else:
+                    objective_function_change = 1.
+                objective_function_old = f
+                print(objective_function_change)
                 volume_fraction_list.append(volume_fraction)
 
                 if i_opt%5==0:
