@@ -3,6 +3,8 @@ from matplotlib import pyplot as plt
 import matplotlib.patches as patches
 import matplotlib.colors as colors
 import numpy as np
+import os
+import tikzplotlib
 
 class Mesh(ABC):
     def __init__(self):
@@ -146,7 +148,48 @@ class Mesh(ABC):
         else:
             raise Exception(f"Plotting the mesh not implemented for element type '{self.elem_type}'")
 
-    def plot_element_quantity(self, quantity, quantity_min, quantity_max, cmap='jet', title=None):
+    def plot_element_quantity(self, quantity, cmap='jet', cbar=True, title=None, file_name=None, tikz=False):
+
+        # Remove existing PNG files
+        if file_name:
+            png_filename = file_name+'-000.png'
+            if os.path.exists(png_filename):
+                os.remove(png_filename)
+
+        x = np.sort(np.unique(self.coords[self.elements[:,:4],0]))
+        y = np.sort(np.unique(self.coords[self.elements[:,:4],1]))
+
+        nn_x = len(x); nn_y = len(y)
+        ne_x = nn_x-1; ne_y = nn_y-1
+
+        quantity_grid = np.array(quantity).reshape(ne_x, ne_y)
+
+         # Create the figure and axis
+        fig, ax = plt.subplots()
+        
+        # Use pcolormesh for fast plotting
+        mesh = ax.pcolormesh(x, y, quantity_grid.T, cmap=cmap)#, edgecolors='k', linewidth=0.5)
+
+        if cbar:
+            plt.colorbar(mesh, ax=ax)
+        
+        # Labels and title
+        ax.set_xlabel('x')
+        ax.set_ylabel('y')
+
+        ax.set_aspect('equal', adjustable='box')
+        if title is not None:
+            ax.set_title(title)
+        if file_name:
+            if tikz:
+                tikzplotlib.save( file_name+'.tex')
+            else:
+                plt.savefig(file_name+'.png')
+        # Show the plot
+        plt.show()
+            
+
+    def plot_element_quantity_old(self, quantity, quantity_min, quantity_max, cmap='jet', title=None, file_name=None, tikz=False):
         ax = plt.axes()
         cm = plt.get_cmap(cmap)
         norm = colors.Normalize(vmin=quantity_min, vmax=quantity_max)
@@ -166,6 +209,10 @@ class Mesh(ABC):
         #cbar.set_label('Quantity')
         if title is not None:
             ax.set_title(title)
+        if file_name:
+            plt.savefig(file_name+'.png')
+            if tikz:
+                tikzplotlib.save( file_name+'.tex')
         plt.show()
 
     def plot_vector_field(self, vector_field, title=None):

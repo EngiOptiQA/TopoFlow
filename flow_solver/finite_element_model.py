@@ -254,13 +254,13 @@ class FEM:
         velocity_magnitude = np.zeros(self.ne)
         for e in range(self.ne):
             velocity_magnitude[e] = np.sqrt(velocity_field[0][e]**2+velocity_field[1][e]**2)
-        self.mesh_v.plot_element_quantity(velocity_magnitude, min(velocity_magnitude), max(velocity_magnitude), title='Velocity Magnitude')
+        self.mesh_v.plot_element_quantity(velocity_magnitude, title='Velocity Magnitude')
 
     def plot_pressure(self, pressure):
-        self.mesh_p.plot_element_quantity(pressure, min(pressure), max(pressure), title='Pressure')
+        self.mesh_p.plot_element_quantity(pressure, title='Pressure')
 
     def plot_density(self):
-        self.mesh_v.plot_element_quantity(self.density, min(self.density), max(self.density), cmap='cool', title='Density')
+        self.mesh_v.plot_element_quantity(self.density, cmap='cool', title='Density')
 
-    def plot_eva(self, density, title=None):
-        self.mesh_v.plot_element_quantity(density, min(density), max(density), cmap='cool', title=title)
+    def plot_eva(self, density, cmap='cool', title=None, file_name=None, tikz=False):
+        self.mesh_v.plot_element_quantity(density, cmap=cmap, title=title, file_name=file_name, tikz=tikz)
