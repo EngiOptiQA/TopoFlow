@@ -11,3 +11,7 @@ This project is based on three modules:
 In addition, _Jupyter_ notebooks for the individual test cases can be found in the [notebooks](notebooks) folder. 
 ### arXiv Paper
 The results prepared for the arXiv paper are located in the [2024_paper_arXiv](scripts/2024_paper_arXiv) folder.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
