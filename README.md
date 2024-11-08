@@ -9,5 +9,5 @@ This project is based on three modules:
    3. The Ising machine formulation as quadratic unconstrained binary optimization (QUBO) problem ([problems](problems) folder)
 
 In addition, _Jupyter_ notebooks for the individual test cases can be found in the [notebooks](notebooks) folder. 
-### Obsolete Code
-Initially, this repository contained the code Yudai developed in the beginning (October 2023) as a reference ([original](original) folder). The code was extended by Shiori and can be found in the [Lshape16](Lshape16) folder. 
+### arXiv Paper
+The results prepared for the arXiv paper are located in the [2024_paper_arXiv](scripts/2024_paper_arXiv) folder.
