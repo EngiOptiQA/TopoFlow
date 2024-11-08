@@ -1,7 +1,7 @@
 # Results Presented in the arXiv Paper
 ## Study of the Objective Function in the QUBO Problem
 ### Inconsistencies
-Script: [diffuser_inconsistencies.py](2024_paper_arXiv/diffuser/inconsistencies/diffuser_inconsistencies.py)
+Script: [diffuser_inconsistencies.py](diffuser/inconsistencies/diffuser_inconsistencies.py)
 
 ![inconsistencies](2024_paper_arXiv/diffuser/inconsistencies/inconsistencies.png)
 ### Regularization
