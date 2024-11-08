@@ -21,7 +21,7 @@ class PolyTop(Optimizer):
 
         objective_function_old = 0.
         for q in q_values:
-            print(str(f' q = {q} ').center(40, '#'))
+            print(f' q = {q} '.center(80, '#'))
             tolerance = design_tolerance*(density_max-density_min)
             design_change = 2*tolerance
             objective_function_change = 2*tolerance
@@ -38,14 +38,15 @@ class PolyTop(Optimizer):
                 self.fem.update_element_density(density)
                 E, dEdy, V, dVdy = self.mat_int_fnc(P*density, q)
                 volume_fraction = density.sum()/self.fem.mesh_v.area
-                print(f'Iteration: {i_opt}, Objective Function: {f}, Volume Fraction: {volume_fraction}')
+                print(f' Optimization Step {i_opt} '.center(80, '*'))
+                print(f'Objective Function: {f}, Volume Fraction: {volume_fraction}')
                 objective_function_list.append(f)
                 if abs(objective_function_old) > 0:
                     objective_function_change = abs(f-objective_function_old)/objective_function_old
                 else:
                     objective_function_change = 1.
                 objective_function_old = f
-                print(objective_function_change)
+                print(f'Rel. change in obj. func.: {objective_function_change}')
                 volume_fraction_list.append(volume_fraction)
 
                 if i_opt%5==0:

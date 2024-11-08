@@ -1,0 +1,82 @@
+% This file was created with tikzplotlib v0.10.1.
+\begin{tikzpicture}
+
+\definecolor{darkgray176}{RGB}{176,176,176}
+\definecolor{gray}{RGB}{128,128,128}
+\definecolor{lightgray204}{RGB}{204,204,204}
+
+\begin{axis}[
+legend cell align={left},
+legend style={fill opacity=0.8, draw opacity=1, text opacity=1, draw=lightgray204},
+tick align=outside,
+tick pos=left,
+title={Comparison Objective Function},
+x grid style={darkgray176},
+xlabel={Optimization Step},
+xmin=-0.45, xmax=31.45,
+xtick style={color=black},
+y grid style={darkgray176},
+ylabel={Objective Function \(\displaystyle J\)},
+ymin=0.000338399104452715, ymax=0.0212995155447755,
+ytick style={color=black}
+]
+\addplot [semithick, gray, dashed, mark=x, mark size=3, mark options={solid}]
+table {%
+1 0.00129117712446739
+2 0.00130800413403712
+3 0.00133599023701187
+4 0.00139175383369178
+5 0.00138975378070405
+6 0.00206738109245555
+7 0.00206474459267706
+8 0.00826581351103336
+9 0.00792100023818086
+10 0.00754235862135257
+11 0.00718997209300769
+12 0.00680110417355453
+13 0.00640917742275954
+14 0.00605243283877356
+15 0.00580164145607527
+16 0.00562977265371694
+17 0.00552629965012149
+18 0.00543773258163264
+19 0.00537862976464335
+20 0.00533253542341234
+21 0.0125935519959001
+22 0.00951373746604438
+23 0.00887727905062749
+24 0.00872037446219812
+25 0.00864750721520196
+26 0.0108686285711545
+27 0.0101095329097123
+28 0.00976272946033845
+29 0.00961873874934866
+30 0.00955430827338161
+};
+\addlegendentry{Classical}
+\addplot [semithick, gray, dash pattern=on 1pt off 3pt on 3pt off 3pt]
+table {%
+-0.45 0.00998718787665346
+31.45 0.00998718787665346
+};
+\addlegendentry{Classical (final, filtered)}
+\addplot [semithick, black, mark=square*, mark size=3, mark options={solid}]
+table {%
+1 0.0203467375247609
+2 0.014870822288675
+3 0.0134055065240296
+4 0.0126872554151058
+5 0.0122290171790956
+6 0.0120896431674815
+7 0.011983384937855
+};
+\addlegendentry{Annealing}
+\addplot [semithick, black]
+table {%
+-0.45 0.011983384937855
+31.45 0.011983384937855
+};
+\addlegendentry{Annealing (final)}
+\end{axis}
+
+\end{tikzpicture}

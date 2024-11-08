@@ -1,0 +1,4 @@
+amplify==0.12.1
+matplotlib==3.5.3
+numpy==1.26.4
+tikzplotlib==0.10.1

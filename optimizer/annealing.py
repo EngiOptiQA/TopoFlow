@@ -41,7 +41,7 @@ class Annealing(Optimizer):
     def __init__(self, fem):
         self.fem = fem
 
-    def optimize(self, annealing_solver, problem, level_set_scaled_initial, max_opt_steps=10, tol=1e-2, plot_steps=False, output_path=None, tikz=False):
+    def optimize(self, annealing_solver, problem, level_set_scaled_initial, max_opt_steps=10, tol=1e-2, plot_mode='', output_path=None, tikz=False):
         
         objective_function_list = []
         volume_fraction_list = []
@@ -56,8 +56,6 @@ class Annealing(Optimizer):
 
         for i_opt in range(max_opt_steps):
 
-            level_set_scaled_old = level_set_scaled
-            char_func_old = char_func
             f_old = f
 
             problem.generate_qubo_formulation(u, v, resistance_coeff_solid, self.fem.mesh_v.neighbor_elements)
@@ -79,27 +77,22 @@ class Annealing(Optimizer):
             objective_function_list.append(f)
             volume_fraction_list.append(volume_fraction)
 
-            print(f'Iteration: {i_opt}, Objective Function: {f}, Volume Fraction: {volume_fraction}, Inconsistencies: {n_inconsistencies}')
+            print(f' Optimization Step {i_opt} '.center(80, '*'))
+            print(f'Objective Function: {f}, Volume Fraction: {volume_fraction}')
 
-            if plot_steps:
+            if plot_mode == 'step':
                 self.fem.plot_eva(char_func, title='Characteristic Function')
                 if problem.hyperparameters['regularization'] > 0:
                     self.fem.plot_eva(level_set, title='Level-Set')
                     if n_inconsistencies > 0:
                         self.fem.plot_eva(inconsistencies, title='Inconsistencies')
 
-            char_func_abs_change = np.sum(np.abs(char_func_old-char_func))
-            char_func_rel_change = char_func_abs_change/np.sum(char_func_old)
             objective_function_rel_change = abs(f-f_old)/f_old
-            print(f'Abs. change in\n'+
-                  f'\tchar. func.:{char_func_abs_change}')
-            print(f'Rel. change in\n'+
-                  f'\tchar. func.:{char_func_rel_change}\n'+
-                  f'\tObj. func.: {objective_function_rel_change}')
+            print(f'Rel. change in obj. func.: {objective_function_rel_change}')
             if objective_function_rel_change < tol:
                 break
 
-        if not plot_steps:
+        if plot_mode== 'final':
             file_name = None
             if output_path:
                 file_name = os.path.join(output_path, 'char_func')
