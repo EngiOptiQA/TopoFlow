@@ -3,7 +3,7 @@
 ### Inconsistencies
 Script: [diffuser_inconsistencies.py](diffuser/inconsistencies/diffuser_inconsistencies.py)
 
-![inconsistencies](2024_paper_arXiv/diffuser/inconsistencies/inconsistencies.png)
+![inconsistencies](diffuser/inconsistencies/inconsistencies.png)
 ### Regularization
 Script: [diffuser_regularization.py](2024_paper_arXiv/diffuser/regularization/diffuser_regularization.py)
 
