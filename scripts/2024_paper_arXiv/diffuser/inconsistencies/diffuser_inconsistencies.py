@@ -67,8 +67,8 @@ client = FixstarsClient()
 client.parameters.timeout = 1000
 client.parameters.outputs.duplicate = True
 
-file_token_fixstars = '/usr2/key/Projects/QuantumAnnealing/TopoFlow/token_Fixstars.txt'
-file_proxy_settings = '/usr2/key/Projects/QuantumAnnealing/TopoFlow/proxy.txt'
+file_token_fixstars = './token_Fixstars.txt'
+file_proxy_settings = './proxy.txt'
 if os.path.exists(file_token_fixstars):
     client.token = open(file_token_fixstars,"r").read().replace('\n', '')
 if os.path.exists(file_proxy_settings):
@@ -121,7 +121,7 @@ for lambda_char_i in range(n_steps_char):
     level_sets.append(level_sets)
 
 # Save data.
-output_path = '/usr2/key/Projects/QuantumAnnealing/TopoFlow/scripts/2024_paper_arXiv/diffuser/inconsistencies'
+output_path = './'
 
 # Save as csv file.
 filename = os.path.join(output_path, 'inconsistencies.csv')

@@ -9,7 +9,7 @@ from flow_solver.mesh_generator import MeshDiffuser
 from optimizer import Annealing, AnnealingSolver
 from problems.topo_opt_level_set_fluid_flow import TopologyOptimizationProblem
 
-output_path = '/usr2/key/Projects/QuantumAnnealing/TopoFlow/scripts/2024_paper_arXiv/diffuser/regularization_dissipation'
+output_path = './'
 
 # Create Meshes for Diffuser Problem
 n_elem_for_width = 32
@@ -68,8 +68,8 @@ client = FixstarsClient()
 client.parameters.timeout = 1000
 client.parameters.outputs.duplicate = True
 
-file_token_fixstars = '/usr2/key/Projects/QuantumAnnealing/TopoFlow/token_Fixstars.txt'
-file_proxy_settings = '/usr2/key/Projects/QuantumAnnealing/TopoFlow/proxy.txt'
+file_token_fixstars = './token_Fixstars.txt'
+file_proxy_settings = './proxy.txt'
 if os.path.exists(file_token_fixstars):
     client.token = open(file_token_fixstars,"r").read().replace('\n', '')
 if os.path.exists(file_proxy_settings):
