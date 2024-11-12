@@ -9,7 +9,7 @@ class PolyTop(Optimizer):
 
     def optimize(self, density_initial, density_min, density_max, volume_fraction_max,
                  design_tolerance, max_iterations, q_values,
-                 opt_OCMove, opt_OCEta):
+                 opt_OCMove, opt_OCEta, plot_mode=''):
 
         # Perform Optimization.
         objective_function_list = []
@@ -23,7 +23,6 @@ class PolyTop(Optimizer):
         for q in q_values:
             print(f' q = {q} '.center(80, '#'))
             tolerance = design_tolerance*(density_max-density_min)
-            design_change = 2*tolerance
             objective_function_change = 2*tolerance
             E, dEdy, V, dVdy = self.mat_int_fnc(P*density, q)
             i_opt = 0
@@ -49,9 +48,10 @@ class PolyTop(Optimizer):
                 print(f'Rel. change in obj. func.: {objective_function_change}')
                 volume_fraction_list.append(volume_fraction)
 
-                if i_opt%5==0:
+                if plot_mode == 'step':
                     self.fem.plot_density()
-            self.fem.plot_density()
+            if plot_mode== 'final':
+                self.fem.plot_density()
 
         self.objective_function_list = objective_function_list
         self.volume_fraction_list = volume_fraction_list
