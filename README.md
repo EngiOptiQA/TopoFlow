@@ -1,3 +1,4 @@
+[![DOI](https://zenodo.org/badge/732936621.svg)](https://doi.org/10.5281/zenodo.14129613)
 # TopoFlow
 This subproject of _EngiOptiQA_ provides a framework to perform topology optimization for fluid flow problems with design updates based on an Ising machine formulation. The latter allows the use of optimization techniques such as GPU-based annealing or (hybrid) quantum annealing (QA).
 
