@@ -10,7 +10,7 @@ This project is based on three modules:
    3. The Ising machine formulation as quadratic unconstrained binary optimization (QUBO) problem ([problems](problems) folder)
 
 ## arXiv Paper
-The results prepared for the arXiv paper are located in the [2024_paper_arXiv](scripts/2024_paper_arXiv) folder.
+The results prepared for the [arXiv paper (arXiv:2411.08405)](https://doi.org/10.48550/arXiv.2411.08405) are located in the [2024_paper_arXiv](scripts/2024_paper_arXiv) folder.
 
 ## License
 
