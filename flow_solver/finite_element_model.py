@@ -62,9 +62,9 @@ class FEM:
 
         e         = np.zeros(sum(ndf_per_elem_v**2), dtype=int)
 
-        i_B = np.zeros(sum(ndf_per_elem_p)*sum(ndf_per_elem_v), dtype=int)
-        j_B = np.zeros(sum(ndf_per_elem_p)*sum(ndf_per_elem_v), dtype=int)
-        k_B = np.zeros(sum(ndf_per_elem_p)*sum(ndf_per_elem_v))
+        i_B = np.zeros((sum(ndf_per_elem_p*ndf_per_elem_v)), dtype=int)
+        j_B = np.zeros((sum(ndf_per_elem_p*ndf_per_elem_v)), dtype=int)
+        k_B = np.zeros((sum(ndf_per_elem_p*ndf_per_elem_v)))
 
         # Quadrature rule.
         quad_rule = QuadratureRule(order=2)
