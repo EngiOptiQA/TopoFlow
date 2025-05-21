@@ -68,8 +68,8 @@ client = FixstarsClient()
 client.parameters.timeout = 1000
 client.parameters.outputs.duplicate = True
 
-file_token_fixstars = '/usr2/key/Projects/QuantumAnnealing/TopoFlow/token_Fixstars.txt'
-file_proxy_settings = '/usr2/key/Projects/QuantumAnnealing/TopoFlow/proxy.txt'
+file_token_fixstars = './token_Fixstars.txt'
+file_proxy_settings = './proxy.txt'
 if os.path.exists(file_token_fixstars):
     client.token = open(file_token_fixstars,"r").read().replace('\n', '')
 if os.path.exists(file_proxy_settings):

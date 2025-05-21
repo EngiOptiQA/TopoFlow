@@ -17,7 +17,7 @@ from problems.topo_opt_level_set_fluid_flow import TopologyOptimizationProblem
 def main(n_elem, timeout, max_steps):
     print(f"Running with: elements={n_elem}, timeout={timeout}, max_steps={max_steps}")
 
-    output_path = f"./revision_{n_elem}_{timeout}_{max_steps}"
+    output_path = f"./{n_elem}_{n_elem}"
     os.makedirs(output_path, exist_ok=True)
 
     # Create Meshes for Diffuser Problem.
@@ -97,8 +97,8 @@ def main(n_elem, timeout, max_steps):
     client.parameters.timeout = timeout
     client.parameters.outputs.duplicate = True
 
-    file_token_fixstars = '/usr2/key/Projects/QuantumAnnealing/TopoFlow/token_Fixstars.txt'
-    file_proxy_settings = '/usr2/key/Projects/QuantumAnnealing/TopoFlow/proxy.txt'
+    file_token_fixstars = './token_Fixstars.txt'
+    file_proxy_settings = './proxy.txt'
     if os.path.exists(file_token_fixstars):
         client.token = open(file_token_fixstars,"r").read().replace('\n', '')
     if os.path.exists(file_proxy_settings):
