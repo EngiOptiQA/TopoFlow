@@ -1,0 +1,74 @@
+% This file was created with tikzplotlib v0.10.1.
+\begin{tikzpicture}
+
+\definecolor{darkgray176}{RGB}{176,176,176}
+\definecolor{gray}{RGB}{128,128,128}
+\definecolor{lightgray204}{RGB}{204,204,204}
+
+\begin{axis}[
+legend cell align={left},
+legend style={fill opacity=0.8, draw opacity=1, text opacity=1, draw=lightgray204},
+tick align=outside,
+tick pos=left,
+title={Comparison Objective Function},
+x grid style={darkgray176},
+xlabel={Optimization Step},
+xmin=0, xmax=19.9,
+xtick style={color=black},
+y grid style={darkgray176},
+ylabel={Objective Function \(\displaystyle J\)},
+ymin=-0.000714170955491021, ymax=0.0293944886601139,
+ytick style={color=black}
+]
+\addplot [semithick, gray, dashed, mark=x, mark size=3, mark options={solid}]
+table {%
+1 0.000654404481581927
+2 0.0102798154048272
+3 0.0251578942496369
+4 0.0280259132230409
+5 0.0189830735024782
+6 0.0095635059788426
+7 0.00330441821886776
+8 0.0023270993656498
+9 0.0020184525531935
+10 0.00193516430357754
+11 0.00191528832237088
+12 0.00190852360367796
+13 0.00237530467513526
+14 0.00222000055628869
+15 0.00218035816542401
+16 0.00217055824005876
+17 0.00229352448890495
+18 0.00225070822470707
+19 0.00222940098062255
+};
+\addlegendentry{Classical}
+\addplot [semithick, gray, dash pattern=on 1pt off 3pt on 3pt off 3pt]
+table {%
+0 0.00225852041568986
+19.9 0.00225852041568986
+};
+\addlegendentry{Classical (final, filtered)}
+\addplot [semithick, black, mark=square*, mark size=3, mark options={solid}]
+table {%
+1 0.017963443243233
+2 0.00333864881056717
+3 0.00294063750323812
+4 0.00278555526253636
+5 0.00267657199846565
+6 0.00262616960606499
+7 0.0025779635219787
+8 0.00254666895771963
+9 0.00250300983455944
+10 0.00249023849432177
+};
+\addlegendentry{Annealing}
+\addplot [semithick, black]
+table {%
+0 0.00249023849432177
+19.9 0.00249023849432177
+};
+\addlegendentry{Annealing (final)}
+\end{axis}
+
+\end{tikzpicture}
